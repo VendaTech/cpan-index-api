@@ -7,19 +7,19 @@ use Moose;
 use namespace::clean -except => 'meta';
 
 has name => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'Str',
     required => 1,
 );
 
 has version => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Maybe[Str]',
     default => 'undef',
 );
 
 has distribution => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'Str',
     required => 1,
 );

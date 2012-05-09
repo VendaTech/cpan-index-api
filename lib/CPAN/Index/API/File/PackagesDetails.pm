@@ -76,6 +76,7 @@ has packages => (
     handles => { 
         package_count => 'count',
         package_list  => 'elements',
+        add_package   => 'push',
     },
 );
 
