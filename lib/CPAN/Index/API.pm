@@ -28,13 +28,12 @@ has repo_uri =>
     required => 1,
 );
 
-
 has packages_details => 
 (
     is         => 'ro',
     isa        => 'CPAN::Index::API::File::PackagesDetails',
     lazy_build => 1,
-    handles    => ['packages', 'add_package'],
+    handles    => ['packages', 'add_package', 'package_list' ],
 );
 
 has mod_list => 
