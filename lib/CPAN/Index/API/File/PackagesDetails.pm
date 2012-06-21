@@ -7,6 +7,8 @@ our $VERSION = 0.001;
 use strict;
 use warnings;
 use URI;
+use URI::file;
+use Path::Class qw(dir);
 use Moose;
 with 'CPAN::Index::API::Role::Reader';
 with 'CPAN::Index::API::Role::Writer';
@@ -82,9 +84,21 @@ has packages => (
 
 sub BUILDARGS {
     my ( $class, %args ) = @_;
-    if ( $args{uri} or $args{repo_uri} ) {
+
+    if ( $args{uri} or $args{repo_uri} ) 
+    {
         return \%args;
-    } else {
+    }
+    elsif ($args{repo_path})
+    {
+        $args{repo_path} = URI::file->new(
+            dir($args{repo_path})->absolute, 
+        );
+
+        return \%args;
+    }
+    else
+    {
         die "Either 'uri' or 'repo_uri' is required";
     }
 }
