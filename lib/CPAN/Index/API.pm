@@ -114,4 +114,16 @@ sub new_from_path
     return $class->new( packages_details => $packages_details, %args );
 }
 
+sub new_from_uri
+{
+    my ($class, %args) = @_;
+
+    my $packages_details = 
+        CPAN::Index::API::File::PackagesDetails->read_from_repo_uri(
+            $args{repo_uri}
+        );
+
+    return $class->new( packages_details => $packages_details, %args );
+}
+
 __PACKAGE__->meta->make_immutable;

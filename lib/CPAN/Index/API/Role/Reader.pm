@@ -68,4 +68,33 @@ sub new_from_path
     return $packages_details;
 }
 
+sub read_from_repo_uri
+{
+    my ($class, $repo_uri) = @_;
+
+    my $uri = URI->new( $repo_uri );
+
+    $uri->path_segments(
+        $uri->path_segments
+        'modules', '02packages.details.txt.gz'
+    );
+
+    my $uri_as_string = $uri->as_string;
+
+    my $content = LWP::Simple::get( $uri_as_string )
+        or die "Failed to fetch $uri_as_string";
+
+    my ( $fh, $filename ) = tempfile;
+    print $fh LWP::Simple::get( $uri->as_string )
+        or die $!;
+    close $fh or die $!;
+    
+    my $packages_details = $class->read_from_tarball( $filename );
+    
+    #FIXME
+    $packages_details->$_($args{$_}) for keys %args;
+
+    return $packages_details;
+}
+
 1;
