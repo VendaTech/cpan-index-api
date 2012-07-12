@@ -3,6 +3,7 @@ package CPAN::Index::API::Role::Reader;
 use strict;
 use warnings;
 use File::Slurp    qw(read_file);
+use File::Temp     qw(tempfile);
 use Scalar::Util   qw(blessed);
 use Path::Class    qw(file);
 use Carp           qw(croak);
@@ -75,7 +76,7 @@ sub read_from_repo_uri
     my $uri = URI->new( $repo_uri );
 
     $uri->path_segments(
-        $uri->path_segments
+        $uri->path_segments,
         'modules', '02packages.details.txt.gz'
     );
 
@@ -91,9 +92,6 @@ sub read_from_repo_uri
     
     my $packages_details = $class->read_from_tarball( $filename );
     
-    #FIXME
-    $packages_details->$_($args{$_}) for keys %args;
-
     return $packages_details;
 }
 

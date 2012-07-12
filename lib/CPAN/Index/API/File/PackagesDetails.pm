@@ -107,7 +107,7 @@ sub _build_uri {
     my $self = shift;
     my $uri = URI->new($self->repo_uri);
     $uri->path_segments(
-        $uri->path_segments,
+        grep { $_ ne '' } $uri->path_segments,
         $self->subdir,
         $self->filename,
     );
