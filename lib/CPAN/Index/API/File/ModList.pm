@@ -7,7 +7,7 @@ our $VERSION = 0.001;
 use strict;
 use warnings;
 use URI;
-use Carp           qw(croak);
+use Carp qw(croak);
 use Moose;
 with 'CPAN::Index::API::Role::Reader';
 with 'CPAN::Index::API::Role::Writer';
@@ -87,10 +87,10 @@ sub parse {
     
     {
         $columns = eval $ds_one;
-        die "Error in eval of 03modlist.data source files: $@" if $@; 
+        croak "Error in eval of 03modlist.data source files: $@" if $@; 
         
         $data = eval $ds_two;
-        die "Error in eval of 03modlist.data source files: $@" if $@; 
+        croak "Error in eval of 03modlist.data source files: $@" if $@; 
     }
 
     foreach my $entry ( @$data ) {
@@ -105,6 +105,11 @@ sub parse {
     $args{modules} = \@modules if @modules;
 
     return %args;
+}
+
+sub default_locations
+{
+    return ['modules', '03modlist.data.gz'];
 }
 
 __PACKAGE__->meta->make_immutable;

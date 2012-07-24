@@ -5,8 +5,7 @@ use warnings;
 
 use File::Path  qw(make_path);
 use Path::Class qw(file dir);
-use List::Util  qw(first);
-
+use Carp        qw(croak);
 use CPAN::Index::API::File::PackagesDetails;
 use CPAN::Index::API::File::ModList;
 use CPAN::Index::API::File::MailRc;
@@ -18,14 +17,12 @@ has repo_path =>
 (
     is       => 'ro',
     isa      => 'Str',
-    required => 1,
 );
 
 has repo_uri => 
 (
     is       => 'ro',
     isa      => 'Str',
-    required => 1,
 );
 
 has packages_details => 
@@ -33,7 +30,7 @@ has packages_details =>
     is         => 'ro',
     isa        => 'CPAN::Index::API::File::PackagesDetails',
     lazy_build => 1,
-    handles    => ['packages', 'add_package', 'package_list' ],
+    handles    => ['packages', 'add_package', 'package_list', 'package' ],
 );
 
 has mod_list => 
@@ -80,6 +77,54 @@ sub _build_mail_rc
     );
 }
 
+sub BUILDARGS {
+    my ( $class, %args ) = @_;
+
+    if ( $args{repo_path} and not $args{repo_uri} )
+    {
+        $args{repo_path} = URI::file->new(
+            dir($args{repo_path})->absolute
+        )->as_string;
+    }
+
+    return \%args;
+}
+
+sub new_from_repo_path
+{
+    my ($self, $repo_path) = @_;
+
+    my %args = ( repo_path => $repo_path );
+
+    $args{packages_details} = 
+        CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_path);
+
+    $args{mail_rc} = 
+        CPAN::Index::API::File::MailRc->read_from_repo_path($repo_path);
+
+    $args{mod_list} = 
+        CPAN::Index::API::File::ModList->read_from_repo_path($repo_path);
+
+    return $self->new(%args);
+}
+
+sub new_from_repo_uri
+{
+    my ($self, $repo_uri) = @_;
+
+    my %args;
+
+    $args{packages_details} = 
+        CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_uri);
+
+    $args{mail_rc} = 
+        CPAN::Index::API::File::MailRc->read_from_repo_path($repo_uri);
+
+    $args{mod_list} = 
+        CPAN::Index::API::File::ModList->read_from_repo_path($repo_uri);
+
+    return $self->new(%args);
+}
 sub write_all_files
 {
     my $self = shift;
@@ -89,41 +134,7 @@ sub write_all_files
 
     $self->packages_details->write_to_tarball;
     $self->mod_list->write_to_tarball;
-    $self->mail_rc->write_to_file;
-}
-
-sub find_package_by_name
-{
-    my ($self, $name) = @_;
-
-    my $packages = $self->packages;
-    return unless $packages;
-
-    return first { $_->name eq $name } @$packages;
-}
-
-sub new_from_path
-{
-    my ($class, %args) = @_;
-
-    my $packages_details = 
-        CPAN::Index::API::File::PackagesDetails->new_from_path(
-            %args
-        );
-
-    return $class->new( packages_details => $packages_details, %args );
-}
-
-sub new_from_uri
-{
-    my ($class, %args) = @_;
-
-    my $packages_details = 
-        CPAN::Index::API::File::PackagesDetails->read_from_repo_uri(
-            $args{repo_uri}
-        );
-
-    return $class->new( packages_details => $packages_details, %args );
+    $self->mail_rc->write_to_tarball;
 }
 
 __PACKAGE__->meta->make_immutable;

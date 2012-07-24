@@ -8,7 +8,9 @@ use strict;
 use warnings;
 use URI;
 use URI::file;
-use Path::Class qw(dir);
+use Path::Class qw(file dir);
+use Carp        qw(croak);
+use List::Util  qw(first);
 use Moose;
 with 'CPAN::Index::API::Role::Reader';
 with 'CPAN::Index::API::Role::Writer';
@@ -99,7 +101,7 @@ sub BUILDARGS {
     }
     else
     {
-        die "Either 'uri' or 'repo_uri' is required";
+        croak "Either 'uri', 'repo_uri' or 'repo_path' is required";
     }
 }
 
@@ -114,7 +116,14 @@ sub _build_uri {
     return $uri->as_string;
 }
 
-sub sorted_packages {
+sub package
+{
+    my ($self, $name) = @_;
+    return first { $_->name eq $name } $self->package_list;
+}
+
+sub sorted_packages 
+{
     my $self = shift;
     return sort { $a->name cmp $b->name } $self->package_list;
 }
@@ -155,6 +164,11 @@ sub parse {
     $args{packages} = \@packages if @packages;
     
     return %args;
+}
+
+sub default_locations 
+{
+    return ['modules', '02packages.details.txt.gz'];
 }
 
 __PACKAGE__->meta->make_immutable;

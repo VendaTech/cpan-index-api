@@ -12,28 +12,36 @@ use Moose::Role;
 use namespace::clean -except => 'meta';
 
 requires 'parse';
+requires 'default_locations';
 
-sub read_from_string {
-    my ($self, $content) = @_;
-    my %args = $self->parse($content);
+sub read_from_string 
+{
+    my ($self, $content, %args) = @_;
 
-    if ( blessed $self ) {
-        foreach my $key ( keys %args ) {
+    %args = ( $self->parse($content), %args );
+
+    if ( blessed $self )
+    {
+        foreach my $key ( keys %args )
+        {
             $self->$key($args{$key});
         }
-    } else {
+    }
+    else
+    {
         return $self->new(%args);
     }
 }
 
 sub read_from_file {
-    my ($self, $file) = @_;
+    my ($self, $file, %args) = @_;
     my $content = read_file($file);
-    return $self->read_from_string($content);
+    return $self->read_from_string($content, %args);
 }
 
-sub read_from_tarball {
-    my ($self, $tarball) = @_;
+sub read_from_tarball 
+{
+    my ($self, $tarball, %args) = @_;
 
     my $gz = gzopen($tarball, 'rb') or croak "Cannot open $tarball: $gzerrno";
     
@@ -46,53 +54,47 @@ sub read_from_tarball {
      
     $gz->gzclose and croak "Error closing $tarball";
 
-    return $self->read_from_string($content);
+    return $self->read_from_string($content, %args);
 }
 
-sub new_from_path
+sub read_from_repo_path
 {
-    my ($class, %args) = @_;
+    my ($self, $repo_path, %args) = @_;
 
-    my $repo_path = $args{repo_path};
+    $args{repo_path} = $repo_path;
 
-    my $path_to_packages_details = file(
-        $repo_path, 'modules', '02packages.details.txt.gz'
+    my @default_locations = $self->default_locations;
+
+    my $path_to_file = file(
+        $repo_path, @{ $default_locations[0] }
     )->stringify;
 
-    my $packages_details = $class->read_from_tarball(
-        $path_to_packages_details
+    return $self->read_from_tarball(
+        $path_to_file, %args
     );
-    
-    #FIXME
-    $packages_details->$_($args{$_}) for keys %args;
-
-    return $packages_details;
 }
 
 sub read_from_repo_uri
 {
-    my ($class, $repo_uri) = @_;
+    my ($self, $repo_uri, %args) = @_;
+
+    $args{repo_uri} = $repo_uri;
 
     my $uri = URI->new( $repo_uri );
+    my @default_locations = $self->default_locations;
 
-    $uri->path_segments(
-        $uri->path_segments,
-        'modules', '02packages.details.txt.gz'
-    );
+    $uri->path_segments( $uri->path_segments, @{ $default_locations[0] } );
 
     my $uri_as_string = $uri->as_string;
 
     my $content = LWP::Simple::get( $uri_as_string )
-        or die "Failed to fetch $uri_as_string";
+        or croak "Failed to fetch $uri_as_string";
 
     my ( $fh, $filename ) = tempfile;
-    print $fh LWP::Simple::get( $uri->as_string )
-        or die $!;
-    close $fh or die $!;
+    print $fh LWP::Simple::get( $uri->as_string ) or croak $!;
+    close $fh or croak $!;
     
-    my $packages_details = $class->read_from_tarball( $filename );
-    
-    return $packages_details;
+    return $self->read_from_tarball( $filename, %args );
 }
 
 1;

@@ -159,7 +159,7 @@ my $reader_without_modules = CPAN::Index::API::File::ModList->read_from_string($
 my %expected = (
     filename       => '03modlist.data',
     written_by     => 'CPAN::Index::API::File::ModList 0.001',
-    tarball_suffix => 'tar.gz',
+    tarball_suffix => 'gz',
     description    => 'Package names found in directory $CPAN/authors/id/',
     subdir         => 'modules'
 );

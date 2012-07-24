@@ -101,7 +101,7 @@ sub _prepare_file {
 
         $file = file( $self->repo_path, $self->subdir, $filename);
     } else {
-        die "Unable to write to file without a filename or repo path";
+        croak "Unable to write to file without a filename or repo path";
     }
 
     $file->dir->mkpath unless -e $file->dir;

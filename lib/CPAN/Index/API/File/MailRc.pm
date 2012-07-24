@@ -38,24 +38,33 @@ sub sorted_authors {
 
 sub parse {
     my ( $self, $content ) = @_;
-
+    
     my @authors;
 
-    foreach my $line ( split "\n", $content ) {
-        my ( $alias, $pauseid, $long ) = split ' ', $line, 3;
-        $long =~ s/^"//;
-        $long =~ s/"$//;
-        my ($name, $email) = $long =~ /(.*) <(.+)>$/;
-        my $author = CPAN::Index::API::Object::Author->new(
-            pauseid => $pauseid,
-            name    => $name,
-            email   => $email,
-        );
+    if ($content)
+    {
 
-        push @authors, $author;
+        foreach my $line ( split "\n", $content ) {
+            my ( $alias, $pauseid, $long ) = split ' ', $line, 3;
+            $long =~ s/^"//;
+            $long =~ s/"$//;
+            my ($name, $email) = $long =~ /(.*) <(.+)>$/;
+            my $author = CPAN::Index::API::Object::Author->new(
+                pauseid => $pauseid,
+                name    => $name,
+                email   => $email,
+            );
+
+            push @authors, $author;
+        }
     }
 
     return ( authors => \@authors );
+}
+
+sub default_locations
+{
+    return ['authors', '01mailrc.txt.gz'];
 }
 
 __PACKAGE__->meta->make_immutable;

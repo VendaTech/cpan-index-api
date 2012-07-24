@@ -40,7 +40,7 @@ my $reader = CPAN::Index::API::File::MailRc->read_from_string($mailrc);
 
 my %expected = (
     filename       => '01mailrc.txt',
-    tarball_suffix => 'tar.gz',
+    tarball_suffix => 'gz',
     subdir         => 'authors'
 );
 
