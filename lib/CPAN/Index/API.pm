@@ -82,7 +82,7 @@ sub BUILDARGS {
 
     if ( $args{repo_path} and not $args{repo_uri} )
     {
-        $args{repo_path} = URI::file->new(
+        $args{repo_uri} = URI::file->new(
             dir($args{repo_path})->absolute
         )->as_string;
     }
