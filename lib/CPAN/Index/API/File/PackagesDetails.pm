@@ -93,9 +93,9 @@ sub BUILDARGS {
     }
     elsif ($args{repo_path})
     {
-        $args{repo_path} = URI::file->new(
+        $args{repo_uri} = URI::file->new(
             dir($args{repo_path})->absolute, 
-        );
+        )->as_string;
 
         return \%args;
     }
