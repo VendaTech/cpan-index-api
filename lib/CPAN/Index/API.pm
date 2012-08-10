@@ -1,5 +1,7 @@
 package CPAN::Index::API;
 
+# ABSTRACT: OO interface to the CPAN index files
+
 use strict;
 use warnings;
 
@@ -18,13 +20,13 @@ has files => (
     handles => { all_files => 'values', file => 'get' },
 );
 
-has repo_path => 
+has repo_path =>
 (
     is       => 'ro',
     isa      => 'Str',
 );
 
-has repo_uri => 
+has repo_uri =>
 (
     is       => 'ro',
     isa      => 'Str',
@@ -64,7 +66,7 @@ sub BUILDARGS {
     return \%args;
 }
 
-sub new_from_repo_path 
+sub new_from_repo_path
 {
     my ($class, %args) = @_;
 

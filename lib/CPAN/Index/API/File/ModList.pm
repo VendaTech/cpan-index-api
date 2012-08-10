@@ -2,8 +2,6 @@ package CPAN::Index::API::File::ModList;
 
 # ABSTRACT: Read and write 03modlist.data
 
-our $VERSION = 0.001;
-
 use strict;
 use warnings;
 use URI;
@@ -48,7 +46,7 @@ has modules => (
     isa     => 'ArrayRef',
     default => sub { [] },
     traits  => ['Array'],
-    handles => { 
+    handles => {
         module_count => 'count',
         module_list  => 'elements',
     },
@@ -57,7 +55,7 @@ has modules => (
 # code from Parse::CPAN::Modlist
 sub parse {
     my ( $self, $content ) = @_;
- 
+
     ### get rid of the comments and the code ###
     ### need a smarter parser, some people have this in their dslip info:
     # [
@@ -78,19 +76,19 @@ sub parse {
     ### and newer versions say:
     ### $CPANPLUS::Modulelist::cols = [...]
     $content =~ s|.+}\s+(\$(?:CPAN::Modulelist::)?cols)|$1|s;
- 
+
     ### split '$cols' and '$data' into 2 variables ###
     my ($ds_one, $ds_two) = split ';', $content, 2;
- 
+
     ### eval them into existance ###
     my ($columns, $data, @modules, %args );
-    
+
     {
         $columns = eval $ds_one;
-        croak "Error in eval of 03modlist.data source files: $@" if $@; 
-        
+        croak "Error in eval of 03modlist.data source files: $@" if $@;
+
         $data = eval $ds_two;
-        croak "Error in eval of 03modlist.data source files: $@" if $@; 
+        croak "Error in eval of 03modlist.data source files: $@" if $@;
     }
 
     foreach my $entry ( @$data ) {
@@ -101,7 +99,7 @@ sub parse {
         my $module = CPAN::Index::API::Object::Module->new(%properties);
         push @modules, $module;
     }
- 
+
     $args{modules} = \@modules if @modules;
 
     return %args;
@@ -148,7 +146,7 @@ $CPAN::Modulelist::cols = [
 ];
 
 [%
-    if ($self->module_count) 
+    if ($self->module_count)
     {
         $OUT .= '$CPAN::Modulelist::data = [' . "\n";
 

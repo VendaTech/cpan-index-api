@@ -114,14 +114,14 @@ $CPAN::Modulelist::cols = [
 $CPAN::Modulelist::data = [];
 EndOfModules
 
-my @modules = map { 
+my @modules = map {
     CPAN::Index::API::Object::Module->new(
         name         => $_->{name},
         author       => $_->{author},
         description  => $_->{description},
         dslip        => $_->{dslip},
         $_->{chapter} ? ( chapter => $_->{chapter} ) : (),
-    ); 
+    );
 } (
     { name => 'Foo', author => 'FOOBAR', description => 'Foo for you', dslip => 'Sdcf?', chapter => '4' },
     { name => 'Baz', author => 'LOCAL', description => 'Some baz', dslip => 'cdpf?', chapter => '4' },

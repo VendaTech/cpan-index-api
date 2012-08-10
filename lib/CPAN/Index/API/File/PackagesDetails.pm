@@ -1,8 +1,6 @@
 package CPAN::Index::API::File::PackagesDetails;
 
-# ABSTRACT: Write 02packages.details.txt
-
-our $VERSION = 0.001;
+# ABSTRACT: Write 02packages.details
 
 use strict;
 use warnings;
@@ -77,7 +75,7 @@ has packages => (
     isa     => 'ArrayRef',
     default => sub { [] },
     traits  => ['Array'],
-    handles => { 
+    handles => {
         package_count => 'count',
         package_list  => 'elements',
         add_package   => 'push',
@@ -87,14 +85,14 @@ has packages => (
 sub BUILDARGS {
     my ( $class, %args ) = @_;
 
-    if ( $args{uri} or $args{repo_uri} ) 
+    if ( $args{uri} or $args{repo_uri} )
     {
         return \%args;
     }
     elsif ($args{repo_path})
     {
         $args{repo_uri} = URI::file->new(
-            dir($args{repo_path})->absolute, 
+            dir($args{repo_path})->absolute,
         )->as_string;
 
         return \%args;
@@ -122,7 +120,7 @@ sub package
     return first { $_->name eq $name } $self->package_list;
 }
 
-sub sorted_packages 
+sub sorted_packages
 {
     my $self = shift;
     return sort { $a->name cmp $b->name } $self->package_list;
@@ -162,11 +160,11 @@ sub parse {
     }
 
     $args{packages} = \@packages if @packages;
-    
+
     return %args;
 }
 
-sub default_locations 
+sub default_locations
 {
     return ['modules', '02packages.details.txt.gz'];
 }

@@ -1,8 +1,6 @@
 package CPAN::Index::API::File::MailRc;
 
-# ABSTRACT: Read and write 01mailrc.txt
-
-our $VERSION = 0.001;
+# ABSTRACT: Read and write 01mailrc
 
 use strict;
 use warnings;
@@ -25,7 +23,7 @@ has authors => (
     isa     => 'ArrayRef',
     default => sub { [] },
     traits  => ['Array'],
-    handles => { 
+    handles => {
         author_count => 'count',
         author_list  => 'elements',
     },
@@ -38,7 +36,7 @@ sub sorted_authors {
 
 sub parse {
     my ( $self, $content ) = @_;
-    
+
     my @authors;
 
     if ($content)
@@ -70,7 +68,7 @@ sub default_locations
 __PACKAGE__->meta->make_immutable;
 
 __DATA__
-[% 
+[%
     foreach my $author ($self->sorted_authors) {
         $OUT .= sprintf qq[alias %s "%s <%s>"\n],
             $author->pauseid,

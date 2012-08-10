@@ -1,5 +1,7 @@
 package CPAN::Index::API::Role::Reader;
 
+# ABSTRACT: Role for reading index files
+
 use strict;
 use warnings;
 use File::Slurp    qw(read_file);
@@ -14,7 +16,7 @@ use namespace::clean -except => 'meta';
 requires 'parse';
 requires 'default_locations';
 
-sub read_from_string 
+sub read_from_string
 {
     my ($self, $content, %args) = @_;
 
@@ -39,19 +41,19 @@ sub read_from_file {
     return $self->read_from_string($content, %args);
 }
 
-sub read_from_tarball 
+sub read_from_tarball
 {
     my ($self, $tarball, %args) = @_;
 
     my $gz = gzopen($tarball, 'rb') or croak "Cannot open $tarball: $gzerrno";
-    
+
     my ($buffer, $content);
 
     $content .= $buffer while $gz->gzread($buffer) > 0 ;
- 
+
     croak "Error reading from $tarball: $gzerrno" . ($gzerrno+0) . "\n"
         if $gzerrno != Z_STREAM_END ;
-     
+
     $gz->gzclose and croak "Error closing $tarball";
 
     return $self->read_from_string($content, %args);
@@ -93,7 +95,7 @@ sub read_from_repo_uri
     my ( $fh, $filename ) = tempfile;
     print $fh LWP::Simple::get( $uri->as_string ) or croak $!;
     close $fh or croak $!;
-    
+
     return $self->read_from_tarball( $filename, %args );
 }
 

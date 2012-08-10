@@ -1,5 +1,7 @@
 package CPAN::Index::API::Object::Module;
 
+# ABSTRACT: Module entry in 03modlist.data
+
 use strict;
 use warnings;
 

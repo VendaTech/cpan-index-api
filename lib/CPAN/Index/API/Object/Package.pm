@@ -1,5 +1,7 @@
 package CPAN::Index::API::Object::Package;
 
+# ABSTRACT: Package entry in 02packages.details
+
 use strict;
 use warnings;
 

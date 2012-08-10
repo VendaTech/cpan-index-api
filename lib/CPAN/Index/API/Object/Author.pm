@@ -1,5 +1,7 @@
 package CPAN::Index::API::Object::Author;
 
+# ABSTRACT: Author entry in 01mailrc
+
 use strict;
 use warnings;
 

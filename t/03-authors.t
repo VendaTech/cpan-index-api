@@ -13,12 +13,12 @@ alias LOCAL "Local <CENSORED>"
 alias PSHANGOV "Peter Shangov <pshangov@example.com>"
 EndOfMailRc
 
-my @authors = map { 
+my @authors = map {
     CPAN::Index::API::Object::Author->new(
         pauseid => $_->{pauseid},
         name    => $_->{name},
         $_->{email} ? ( email => $_->{email} ) : (),
-    ); 
+    );
 } (
     { pauseid => 'FOOBAR',   name => 'Foo Bar',       email => 'foo@bar.com' },
     { pauseid => 'PSHANGOV', name => 'Peter Shangov', email => 'pshangov@example.com' },
