@@ -6,7 +6,6 @@ use strict;
 use warnings;
 
 use File::Slurp    qw(write_file read_file);
-use File::Path     qw(make_path);
 use File::Basename qw(fileparse);
 use Path::Class    qw(file dir);
 use Text::Template qw(fill_in_string);
