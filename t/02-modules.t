@@ -12,7 +12,7 @@ my $with_modules = <<'EndOfModules';
 File:        03modlist.data
 Description: Package names found in directory $CPAN/authors/id/
 Modcount:    3
-Written-By:  CPAN::Index::API::File::ModList 0.001
+Written-By:  CPAN::Index::API::File::ModList 0.002
 Date:        Fri Mar 23 18:23:15 2012 GMT
 
 package CPAN::Modulelist;
@@ -82,7 +82,7 @@ my $without_modules = <<'EndOfModules';
 File:        03modlist.data
 Description: Package names found in directory $CPAN/authors/id/
 Modcount:    0
-Written-By:  CPAN::Index::API::File::ModList 0.001
+Written-By:  CPAN::Index::API::File::ModList 0.002
 Date:        Fri Mar 23 18:23:15 2012 GMT
 
 package CPAN::Modulelist;
@@ -128,15 +128,17 @@ my @modules = map {
     { name => 'Acme::Qux', author => 'PSHANGOV', description => 'Qux your code', dslip => 'RdpO?', chapter => '23' },
 );
 
+my $version = $CPAN::Index::API::File::ModList::VERSION;
+
 my $writer_with_modules = CPAN::Index::API::File::ModList->new(
     date       => 'Fri Mar 23 18:23:15 2012 GMT',
-    written_by => 'CPAN::Index::API::File::ModList 0.001',
+    written_by => "CPAN::Index::API::File::ModList $version",
     modules    => \@modules,
 );
 
 my $writer_without_modules = CPAN::Index::API::File::ModList->new(
     date       => 'Fri Mar 23 18:23:15 2012 GMT',
-    written_by => 'CPAN::Index::API::File::ModList 0.001',
+    written_by => "CPAN::Index::API::File::ModList $version",
 );
 
 eq_or_diff( $writer_with_modules->content, $with_modules, 'with modules' );
@@ -158,7 +160,7 @@ my $reader_without_modules = CPAN::Index::API::File::ModList->read_from_string($
 
 my %expected = (
     filename       => '03modlist.data',
-    written_by     => 'CPAN::Index::API::File::ModList 0.001',
+    written_by     => "CPAN::Index::API::File::ModList $version",
     tarball_suffix => 'gz',
     description    => 'Package names found in directory $CPAN/authors/id/',
     subdir         => 'modules'
