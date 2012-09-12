@@ -112,6 +112,80 @@ sub default_locations
 
 __PACKAGE__->meta->make_immutable;
 
+=pod
+
+=head1 SYNOPSIS
+
+  my $modlist = CPAN::Index::File::ModList->parse_from_repo_uri(
+    'http://cpan.perl.org'
+  );
+
+  foreach my $module ($modlist->module_list) {
+    ... # do something
+  }
+
+=head1 DESCRIPTION
+
+This is a class to read and write 03modlist.data
+
+=head1 METHODS
+
+=head2 modules
+
+List of modules.
+
+=head2 module_count
+
+Number of modules indexed in the file.
+
+=head2 description
+
+Short description of the file.
+
+=head2 written_by
+
+Name and version of software that wrote the file.
+
+=head2 date
+
+Date and time when the file was written.
+
+=head2 parse
+
+Parses the file and reurns its representation as a data structure.
+
+=head1 METHODS FROM ROLES
+
+=over
+
+=item <CPAN::Index::API::Role::Reader/read_from_string>
+
+=item <CPAN::Index::API::Role::Reader/read_from_file>
+
+=item <CPAN::Index::API::Role::Reader/read_from_tarball>
+
+=item <CPAN::Index::API::Role::Reader/read_from_repo_path>
+
+=item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
+
+=item L<CPAN::Index::API::Role::Writer/filename>
+
+=item L<CPAN::Index::API::Role::Writer/tarball_suffix>
+
+=item L<CPAN::Index::API::Role::Writer/repo_path>
+
+=item L<CPAN::Index::API::Role::Writer/template>
+
+=item L<CPAN::Index::API::File::Role::Writer/content>
+
+=item L<CPAN::Index::API::File::Role::Writer/ write_to_file>
+
+=item L<CPAN::Index::API::File::Role::Writer/write_to_tarball>
+
+=back
+
+=cut
+
 __DATA__
 File:        [% $self->filename %]
 Description: [% $self->description %]

@@ -125,3 +125,106 @@ sub write_all_files
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 SYNOPSIS
+
+    my $index = CPAN::Index::API->new_from_repo_uri(
+        repo_uri => 'http://cpan.perl.org/',
+        files => [qw(PackagesDetails ModList MailRc)],
+    );
+
+    my $packages = $index->file('PackagesDetails');
+
+=head1 DESRIPTION
+
+C<CPAN::Index::API> is a library to read and write CPAN index files. See the
+modules in the C<CPAN::Index::API::File> namesace for documentation on the
+individual files supported.
+
+This class provides a convenient interface for working with multiple files
+from the same location at the same time.
+
+=head1 CONSTRUCTION
+
+=head2 new
+
+Creates a new index object. Accepts the following parameters:
+
+=over
+
+=item files
+
+Required. Hashrefs whose values are C<CPAN::Index::API::File> objects. The
+individual objects can later be accessed by their respective hash key via the
+L</file> method.
+
+=item repo_path
+
+Optional. Path to the root of the repository to which the index files belong.
+
+=item repo_uri
+
+Optional. Base uri of the repository to which the index files belong. 
+
+=back
+
+=head2 new_from_repo_path
+
+Creates a new index object by reading one or more index files from a local
+repository. Accepts the following parameters:
+
+=over
+
+=item files
+
+Required. Arrayref of names of index files to be read. Each name must be the
+name of a plugin under the C<CPAN::Index::API::File::> namespace, e.g.
+C<PackagesDetails>, C<ModList>, etc. 
+
+=item repo_path
+
+Required. Path to the root of the local repository.
+
+=back
+
+=head2 new_from_repo_uri
+
+Creates a new index object by reading one or more index files from a remote
+repository. Accepts the following parameters:
+
+=over
+
+=item files
+
+Required. Arrayref of names of index files to be read. Each name must be the
+name of a plugin under the C<CPAN::Index::API::File::> namespace, e.g.
+C<PackagesDetails>, C<ModList>, etc. 
+
+=item repo_uri
+
+Required. Path to the base uri of the remote repository.
+
+=back
+
+=head1 METHODS
+
+=head2 file
+
+Given the name of a file plugin loaded within the index, returns the object
+corresponding to this index file.
+
+=head2 repo_path
+
+Returns the path to the repository.
+
+=head2 repo_uri
+
+Returns the base uri of the repository.
+
+=head2 write_all_files
+
+Writes all index files under their default locations under C<repo_path>.
+
+=cut

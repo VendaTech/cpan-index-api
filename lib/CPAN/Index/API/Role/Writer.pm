@@ -109,3 +109,59 @@ sub _prepare_file {
 }
 
 1;
+
+=pod
+
+=head1 DESCRIPTION
+
+This role provides attributes and methods shared between classes that write
+index files.
+
+=head1 REQUIRES
+
+This role does not explicitly require any methods, but it expects that
+consuming packages will have a C<DATA> section that contains the template
+to use for generating the file contents.
+
+=head1 PROVIDES
+
+=head2 filename
+
+Required attribute. Base name of index file, e.g. C<02packages.details.txt>.
+
+=head2 subdir
+
+Required attribute. Directory where the index file is located, relative to
+the repo root.
+
+=head2 tarball_suffix
+
+Optional attribute. Suffix to use for the compressed version of the index file.
+Default is C<gz>.
+
+=head2 repo_path
+
+Optional attribute. Path to the repository root.
+
+=head2 template
+
+Optional attribute. The template to use for generating the index files. The
+defalt is fetched from the C<DATA> section of the consuming package.
+
+=head2 content
+
+Optional attribute. The index file content. Built by default from the
+provided L</template>.
+
+=head2 write_to_file
+
+This method builds the file content if necessary and writes it to a file. The
+full file path is calculated from L</subdir> and L</filename>.
+
+=head2 write_to_tarball
+
+This method builds the file content if necessary and writes it to a tarball.
+The full tarball file path is calculated from L</subdir>, L</filename> and
+L<tarball_suffix>.
+
+=cut

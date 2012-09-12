@@ -1,6 +1,6 @@
 package CPAN::Index::API::File::MailRc;
 
-# ABSTRACT: Read and write 01mailrc
+# ABSTRACT: Read and write 01mailrc.txt
 
 use strict;
 use warnings;
@@ -66,6 +66,68 @@ sub default_locations
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 SYNOPSIS
+
+  my $mailrc = CPAN::Index::File::MailRc->parse_from_repo_uri(
+    'http://cpan.perl.org'
+  );
+
+  foreach my $author ($mailrc->sorted_authors) {
+    ... # do something
+  }
+
+=head1 DESCRIPTION
+
+This is a class to read and write 01mailrc.txt
+
+=head1 METHODS
+
+=head2 authors
+
+List of authors.
+
+=head2 sorted_authors
+
+List of authors sorted by pause id.
+
+=head2 parse
+
+Parses the file and reurns its representation as a data structure.
+
+=head1 METHODS FROM ROLES
+
+=over
+
+=item <CPAN::Index::API::Role::Reader/read_from_string>
+
+=item <CPAN::Index::API::Role::Reader/read_from_file>
+
+=item <CPAN::Index::API::Role::Reader/read_from_tarball>
+
+=item <CPAN::Index::API::Role::Reader/read_from_repo_path>
+
+=item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
+
+=item L<CPAN::Index::API::Role::Writer/filename>
+
+=item L<CPAN::Index::API::Role::Writer/tarball_suffix>
+
+=item L<CPAN::Index::API::Role::Writer/repo_path>
+
+=item L<CPAN::Index::API::Role::Writer/template>
+
+=item L<CPAN::Index::API::File::Role::Writer/content>
+
+=item L<CPAN::Index::API::File::Role::Writer/ write_to_file>
+
+=item L<CPAN::Index::API::File::Role::Writer/write_to_tarball>
+
+=back
+
+=cut
 
 __DATA__
 [%

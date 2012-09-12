@@ -52,7 +52,7 @@ sub read_from_tarball
     $content .= $buffer while $gz->gzread($buffer) > 0 ;
 
     croak "Error reading from $tarball: $gzerrno" . ($gzerrno+0) . "\n"
-        if $gzerrno != Z_STREAM_END ;
+        if $gzerrno != Z_STREAM_END;
 
     $gz->gzclose and croak "Error closing $tarball";
 
@@ -100,3 +100,40 @@ sub read_from_repo_uri
 }
 
 1;
+
+=head1 DESCRIPTION
+
+This role provides a collection of utility constructors for CPAN index file
+objects.
+
+=head1 REQUIRES
+
+=head2 parse
+
+This class method (generally invoked as part of the construction phase)
+should accept a string containing an index file, and return a list of
+key/value pairs suitable for passing to the constructor of the consuming class.
+
+=head1 PROVIDES
+
+=head2 read_from_string
+
+Construct a new index file object by reading the file contents from a string.
+
+=head2 read_from_file
+
+Construct a new index file object by reading the file contents from a filename.
+
+=head2 read_from_tarball
+
+Construct a new index file object by reading the file contents from a tarball.
+
+=head2 read_from_repo_path
+
+Construct a new index file object by locating and parsing a file in a local
+repository.
+
+=head2 read_from_repo_uri
+
+Construct a new index file object by locating and parsing a file in a remote
+repository.
