@@ -31,7 +31,7 @@ has authors => (
 
 sub sorted_authors {
     my $self = shift;
-    return sort { $a->pauseid cmp $b->pauseid } $self->author_list;
+    return sort { $a->{pauseid} cmp $b->{pauseid} } $self->author_list;
 }
 
 sub parse {
@@ -47,11 +47,11 @@ sub parse {
             $long =~ s/^"//;
             $long =~ s/"$//;
             my ($name, $email) = $long =~ /(.*) <(.+)>$/;
-            my $author = CPAN::Index::API::Object::Author->new(
+            my $author = {
                 pauseid => $pauseid,
                 name    => $name,
                 email   => $email,
-            );
+            };
 
             push @authors, $author;
         }

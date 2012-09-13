@@ -52,12 +52,10 @@ my @three_authors = $reader->author_list;
 
 is ( scalar @three_authors, 3, "reader has 3 authors" );
 
-(my $foobar) = grep { $_->pauseid eq 'FOOBAR' } @three_authors;
+(my $foobar) = grep { $_->{pauseid} eq 'FOOBAR' } @three_authors;
 
-isa_ok ($foobar, 'CPAN::Index::API::Object::Author' );
-
-is ( $foobar->pauseid, 'FOOBAR',      'read author pauseid' );
-is ( $foobar->name,    'Foo Bar',     'read author name'    );
-is ( $foobar->email,   'foo@bar.com', 'read author email'   );
+is ( $foobar->{pauseid}, 'FOOBAR',      'read author pauseid' );
+is ( $foobar->{name},    'Foo Bar',     'read author name'    );
+is ( $foobar->{email},   'foo@bar.com', 'read author email'   );
 
 done_testing;

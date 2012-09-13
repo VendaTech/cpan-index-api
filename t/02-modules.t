@@ -182,13 +182,11 @@ my @three_modules = $reader_with_modules->module_list;
 
 is ( scalar @three_modules, 3, "reader with modules has 3 modules" );
 
-(my $foo) = grep { $_->name eq 'Foo' } @three_modules;
-
-isa_ok ($foo, 'CPAN::Index::API::Object::Module' );
+(my $foo) = grep { $_->{name} eq 'Foo' } @three_modules;
 
 my %expected_attributes = (
     name              => 'Foo',
-    chapter           => 4,
+    chapterid         => 4,
     author            => 'FOOBAR',
     description       => 'Foo for you',
     public_license    => '?',
@@ -199,7 +197,7 @@ my %expected_attributes = (
 );
 
 foreach my $attribute ( keys %expected_attributes ) {
-    is ( $foo->$attribute, $expected_attributes{$attribute}, "read module $attribute" );
+    is ( $foo->{$attribute}, $expected_attributes{$attribute}, "read module $attribute" );
 }
 
 done_testing;

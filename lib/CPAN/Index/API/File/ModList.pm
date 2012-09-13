@@ -5,7 +5,7 @@ package CPAN::Index::API::File::ModList;
 use strict;
 use warnings;
 use URI;
-use Carp qw(croak);
+use Carp qw(carp croak);
 use Moose;
 with 'CPAN::Index::API::Role::Reader';
 with 'CPAN::Index::API::Role::Writer';
@@ -75,7 +75,7 @@ sub parse {
     ### $cols = [....]
     ### and newer versions say:
     ### $CPANPLUS::Modulelist::cols = [...]
-    $content =~ s|.+}\s+(\$(?:CPAN::Modulelist::)?cols)|$1|s;
+    $content =~ s/.+}\s+(\$(?:CPAN::Modulelist::)?cols)/$1/s;
 
     ### split '$cols' and '$data' into 2 variables ###
     my ($ds_one, $ds_two) = split ';', $content, 2;
@@ -83,21 +83,44 @@ sub parse {
     ### eval them into existance ###
     my ($columns, $data, @modules, %args );
 
-    {
-        $columns = eval $ds_one;
-        croak "Error in eval of 03modlist.data source files: $@" if $@;
+    $columns = eval $ds_one;
+    croak "Error in eval of 03modlist.data source files: $@" if $@;
 
-        $data = eval $ds_two;
-        croak "Error in eval of 03modlist.data source files: $@" if $@;
+    $data = eval $ds_two;
+    croak "Error in eval of 03modlist.data source files: $@" if $@;
+
+    my %map = (
+        modid       => 'name',
+        statd       => 'development_stage',
+        stats       => 'support_level',
+        statl       => 'language_used',
+        stati       => 'interface_style',
+        statp       => 'public_license',
+        userid      => 'author',
+        chapterid   => 'chapterid',
+        description => 'description',
+    );
+
+    if ( my @unknown_columns = grep { ! $map{$_} } @$columns ) {
+        carp "Found unknown columns in 03modlist.data: " 
+             . join ', ', @unknown_columns;
     }
 
     foreach my $entry ( @$data ) {
-        my %properties;
-        @properties{@$columns} = @$entry;
-        $properties{'chapterid'} = int($properties{'chapterid'});
+        my %module;
 
-        my $module = CPAN::Index::API::Object::Module->new(%properties);
-        push @modules, $module;
+        @module{@map{@$columns}} = @$entry;
+        $module{chapterid} = int($module{chapterid});
+        
+        $module{dslip} = join '', @module{qw(
+            development_stage
+            support_level
+            language_used
+            interface_style
+            public_license
+        )};
+
+        push @modules, \%module;
     }
 
     $args{modules} = \@modules if @modules;

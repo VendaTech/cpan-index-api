@@ -106,13 +106,11 @@ my @four_packages = $reader_with_packages->package_list;
 
 is ( scalar @four_packages, 4, "reader with packages has 4 packages" );
 
-(my $foo) = grep { $_->name eq 'Foo' } @four_packages;
+(my $foo) = grep { $_->{name} eq 'Foo' } @four_packages;
 
-isa_ok ($foo, 'CPAN::Index::API::Object::Package' );
-
-is ( $foo->name,         'Foo',                         'read package name'         );
-is ( $foo->version,      '0.01',                        'read package version'      );
-is ( $foo->distribution, 'F/FO/FOOBAR/Foo-0.01.tar.gz', 'read package distribution' );
+is ( $foo->{name},         'Foo',                         'read package name'         );
+is ( $foo->{version},      '0.01',                        'read package version'      );
+is ( $foo->{distribution}, 'F/FO/FOOBAR/Foo-0.01.tar.gz', 'read package distribution' );
 
 my ($tarball_fh_with_packages, $tarball_name_with_packages) = tempfile;
 $writer_with_packages->write_to_tarball($tarball_name_with_packages);

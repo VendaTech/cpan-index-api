@@ -10,8 +10,7 @@ use Path::Class qw(file dir);
 use Carp        qw(croak);
 use List::Util  qw(first);
 use Moose;
-with 'CPAN::Index::API::Role::Reader';
-with 'CPAN::Index::API::Role::Writer';
+with qw(CPAN::Index::API::Role::Reader CPAN::Index::API::Role::Writer);
 use namespace::clean -except => 'meta';
 
 has '+filename' => (
@@ -117,13 +116,13 @@ sub _build_uri {
 sub package
 {
     my ($self, $name) = @_;
-    return first { $_->name eq $name } $self->package_list;
+    return first { $_->{name} eq $name } $self->package_list;
 }
 
 sub sorted_packages
 {
     my $self = shift;
-    return sort { $a->name cmp $b->name } $self->package_list;
+    return sort { $a->{name} cmp $b->{name} } $self->package_list;
 }
 
 sub parse {
@@ -151,11 +150,11 @@ sub parse {
 
     foreach my $line ( @lines ) {
         my ( $name, $version, $distribution ) = split ' ', $line;
-        my $package = CPAN::Index::API::Object::Package->new(
+        my $package = {
             name         => $name,
             version      => $version,
             distribution => $distribution,
-        );
+        };
         push @packages, $package;
     }
 
