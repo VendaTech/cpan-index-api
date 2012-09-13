@@ -133,8 +133,8 @@ __DATA__
 [%
     foreach my $author ($self->sorted_authors) {
         $OUT .= sprintf qq[alias %s "%s <%s>"\n],
-            $author->pauseid,
-            $author->name,
-            $author->email;
+            $author->{pauseid},
+            $author->{name},
+            $author->{email} ? $author->{email} : 'CENSORED';
     }
 %]

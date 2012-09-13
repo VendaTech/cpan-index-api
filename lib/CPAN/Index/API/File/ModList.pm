@@ -249,15 +249,15 @@ $CPAN::Modulelist::cols = [
 
         foreach my $module ($self->module_list) {
             $OUT .= sprintf "[\n'%s',\n'%s',\n'%s',\n'%s',\n'%s',\n'%s',\n'%s',\n'%s',\n'%s'\n],\n",
-                $module->name,
-                $module->development_stage ? $module->development_stage : '?',
-                $module->support_level     ? $module->support_level     : '?',
-                $module->language_used     ? $module->language_used     : '?',
-                $module->interface_style   ? $module->interface_style   : '?',
-                $module->public_license    ? $module->public_license    : '?',
-                $module->description,
-                $module->author,
-                $module->chapter,
+                $module->{name},
+                $module->{development_stage} ? $module->{development_stage} : '?',
+                $module->{support_level}     ? $module->{support_level}     : '?',
+                $module->{language_used}     ? $module->{language_used}     : '?',
+                $module->{interface_style}   ? $module->{interface_style}   : '?',
+                $module->{public_license}    ? $module->{public_license}    : '?',
+                $module->{description},
+                $module->{author},
+                $module->{chapterid},
         }
 
         $OUT .= "];\n"

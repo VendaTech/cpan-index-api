@@ -267,9 +267,9 @@ Last-Updated: [% $self->last_updated  %]
         $OUT .= "\n";
         foreach my $package ($self->sorted_packages) {
             $OUT .= sprintf "%-34s %5s  %s\n",
-                $package->name,
-                defined $package->version ? $package->version : 'undef',
-                $package->distribution;
+                $package->{name},
+                defined $package->{version} ? $package->{version} : 'undef',
+                $package->{distribution};
         }
     }
     else

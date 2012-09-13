@@ -5,7 +5,6 @@ use Test::Most;
 use File::Temp qw(tempfile);
 use File::Slurp qw(read_file);
 use CPAN::Index::API::File::ModList;
-use CPAN::Index::API::Object::Module;
 
 # defaults
 my $with_modules = <<'EndOfModules';
@@ -114,18 +113,40 @@ $CPAN::Modulelist::cols = [
 $CPAN::Modulelist::data = [];
 EndOfModules
 
-my @modules = map {
-    CPAN::Index::API::Object::Module->new(
-        name         => $_->{name},
-        author       => $_->{author},
-        description  => $_->{description},
-        dslip        => $_->{dslip},
-        $_->{chapter} ? ( chapter => $_->{chapter} ) : (),
-    );
-} (
-    { name => 'Foo', author => 'FOOBAR', description => 'Foo for you', dslip => 'Sdcf?', chapter => '4' },
-    { name => 'Baz', author => 'LOCAL', description => 'Some baz', dslip => 'cdpf?', chapter => '4' },
-    { name => 'Acme::Qux', author => 'PSHANGOV', description => 'Qux your code', dslip => 'RdpO?', chapter => '23' },
+my @modules = (
+    { 
+        name              => 'Foo', 
+        author            => 'FOOBAR', 
+        description       => 'Foo for you', 
+        chapterid         => '4',
+        development_stage => 'S',
+        support_level     => 'd',
+        language_used     => 'c',
+        interface_style   => 'f',
+        public_license    => '?',
+    },
+    { 
+        name              => 'Baz', 
+        author            => 'LOCAL', 
+        description       => 'Some baz', 
+        chapterid         => '4',
+        development_stage => 'c',
+        support_level     => 'd',
+        language_used     => 'p',
+        interface_style   => 'f',
+        public_license    => '?',
+    },
+    { 
+        name              => 'Acme::Qux', 
+        author            => 'PSHANGOV', 
+        description       => 'Qux your code', 
+        chapterid         => '23',
+        development_stage => 'R',
+        support_level     => 'd',
+        language_used     => 'p',
+        interface_style   => 'O',
+        public_license    => '?',
+    },
 );
 
 my $version = $CPAN::Index::API::File::ModList::VERSION;

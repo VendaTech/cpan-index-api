@@ -6,7 +6,6 @@ use File::Temp qw(tempfile);
 use File::Slurp qw(read_file);
 use Compress::Zlib qw(gzopen);
 use CPAN::Index::API::File::PackagesDetails;
-use CPAN::Index::API::Object::Package;
 
 # defaults
 my $with_packages = <<'EndOfPackages';
@@ -36,13 +35,7 @@ Line-Count:   0
 Last-Updated: Fri Mar 23 18:23:15 2012 GMT
 EndOfPackages
 
-my @packages = map {
-    CPAN::Index::API::Object::Package->new(
-        name         => $_->{name},
-        version      => $_->{version},
-        distribution => $_->{distribution},
-    );
-} (
+my @packages = (
     { name => 'Foo',       version => '0.01',  distribution => 'F/FO/FOOBAR/Foo-0.01.tar.gz' },
     { name => 'Foo::Bar',  version =>  undef,  distribution => 'F/FO/FOOBAR/Foo-0.01.tar.gz' },
     { name => 'Baz',       version => '1.234', distribution => 'L/LO/LOCAL/Baz-1.234.tar.gz' },
