@@ -1,7 +1,16 @@
 Revision history for CPAN-Index-API
 
-0.001   30 July 2012
-        Initial release
+0.003   18 September 2012
+
+        * Better performance by using hashes instead of objects for records
+        * Refactor 'default_locations'
+        * Make attributes read-only, provide a clone method instead
 
 0.002   14 August 2012
-        Replace File::Path::make_path with Path::Class::Dir::mkpath
+
+        * Replace File::Path::make_path with Path::Class::Dir::mkpath
+
+0.001   30 July 2012
+
+        * Initial release
+

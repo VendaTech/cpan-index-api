@@ -4,65 +4,67 @@ package CPAN::Index::API::File::PackagesDetails;
 
 use strict;
 use warnings;
+
 use URI;
 use URI::file;
 use Path::Class qw(file dir);
 use Carp        qw(croak);
 use List::Util  qw(first);
+use namespace::autoclean;
 use Moose;
-with qw(CPAN::Index::API::Role::Reader CPAN::Index::API::Role::Writer);
-use namespace::clean -except => 'meta';
 
-has '+filename' => (
-    default  => '02packages.details.txt',
-);
+extends qw(CPAN::Index::API::File);
+with qw(CPAN::Index::API::Role::Writer CPAN::Index::API::Role::Reader);
 
-has '+subdir' => (
-    default  => 'modules',
+has filename => (
+    is         => 'ro',
+    isa        => 'Str',
+    required   => 1,
+    lazy_build => 1,
 );
 
 has uri => (
-    is         => 'rw',
+    is         => 'ro',
     isa        => 'Str',
     required   => 1,
     lazy_build => 1,
 );
 
 has repo_uri => (
-    is  => 'rw',
+    is  => 'ro',
     isa => 'Str',
 );
 
 has description => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Str',
     required => 1,
     default  => 'Package names found in directory $CPAN/authors/id/',
 );
 
 has columns => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Str',
     required => 1,
     default  => 'package name, version, path',
 );
 
 has intended_for => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Str',
     required => 1,
     default  => 'Automated fetch routines, namespace documentation.',
 );
 
 has written_by => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Str',
     required => 1,
     default  => "CPAN::Index::API::File::PackagesDetails $CPAN::Index::API::File::PackagesDetails::VERSION",
 );
 
 has last_updated => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Str',
     required => 1,
     lazy     => 1,
@@ -70,13 +72,13 @@ has last_updated => (
 );
 
 has packages => (
-    is      => 'rw',
-    isa     => 'ArrayRef',
+    is      => 'bare',
+    isa     => 'ArrayRef[HashRef]',
     default => sub { [] },
     traits  => ['Array'],
     handles => {
         package_count => 'count',
-        package_list  => 'elements',
+        packages      => 'elements',
         add_package   => 'push',
     },
 );
@@ -102,13 +104,18 @@ sub BUILDARGS {
     }
 }
 
+sub _build_filename {
+    my $self = shift;
+    return file($self->default_location)->basename;
+}
+
 sub _build_uri {
     my $self = shift;
     my $uri = URI->new($self->repo_uri);
     $uri->path_segments(
         grep { $_ ne '' } $uri->path_segments,
-        $self->subdir,
-        $self->filename,
+        file($self->default_location)->dir->dir_list,
+        file($self->default_location)->basename,
     );
     return $uri->as_string;
 }
@@ -116,13 +123,13 @@ sub _build_uri {
 sub package
 {
     my ($self, $name) = @_;
-    return first { $_->{name} eq $name } $self->package_list;
+    return first { $_->{name} eq $name } $self->packages;
 }
 
 sub sorted_packages
 {
     my $self = shift;
-    return sort { $a->{name} cmp $b->{name} } $self->package_list;
+    return sort { $a->{name} cmp $b->{name} } $self->packages;
 }
 
 sub parse {
@@ -163,10 +170,7 @@ sub parse {
     return %args;
 }
 
-sub default_locations
-{
-    return ['modules', '02packages.details.txt.gz'];
-}
+sub default_location { 'modules/02packages.details.txt.gz' }
 
 __PACKAGE__->meta->make_immutable;
 
@@ -178,7 +182,7 @@ __PACKAGE__->meta->make_immutable;
     'http://cpan.perl.org'
   );
 
-  foreach my $packages ($pckdetails->package_list) {
+  foreach my $package ($pckdetails->packages) {
     ... # do something
   }
 
@@ -190,11 +194,32 @@ This is a class to read and write 03modlist.data
 
 =head2 packages
 
-List of packages indexed in the file.
+List of hashrefs representing packages indexed in the file. Each hashref
+has the following structure:
+
+=over
+
+=item name
+
+Package name, e.g. C<Foo::Bar>.
+
+=item version
+
+Package version, e.g. C<0.001>.
+
+=item distribuiton
+
+Distribution the package belongs to, e.g. C<Foo-Bar-0.001>.
+
+=back
 
 =head2 package_count
 
 Number of packages indexed in the file.
+
+=head2 filename
+
+Name of this file - defaults to C<02packages.details.txt.gz>;
 
 =head2 description
 
@@ -220,6 +245,10 @@ Absolute URI pointing to the file location.
 
 Parses the file and reurns its representation as a data structure.
 
+=head2 default_location
+
+Default file location - C<modules/02packages.details.txt.gz>.
+
 =head1 METHODS FROM ROLES
 
 =over
@@ -233,10 +262,6 @@ Parses the file and reurns its representation as a data structure.
 =item <CPAN::Index::API::Role::Reader/read_from_repo_path>
 
 =item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
-
-=item L<CPAN::Index::API::Role::Writer/filename>
-
-=item L<CPAN::Index::API::Role::Writer/tarball_suffix>
 
 =item L<CPAN::Index::API::Role::Writer/repo_path>
 

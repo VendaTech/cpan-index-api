@@ -9,12 +9,13 @@ use File::Temp     qw(tempfile);
 use Scalar::Util   qw(blessed);
 use Path::Class    qw(file);
 use Carp           qw(croak);
+use LWP::Simple;
 use Compress::Zlib qw(gzopen Z_STREAM_END), '$gzerrno';
 use Moose::Role;
 use namespace::clean -except => 'meta';
 
 requires 'parse';
-requires 'default_locations';
+requires 'default_location';
 
 sub read_from_string
 {
@@ -65,14 +66,8 @@ sub read_from_repo_path
 
     $args{repo_path} = $repo_path;
 
-    my @default_locations = $self->default_locations;
-
-    my $path_to_file = file(
-        $repo_path, @{ $default_locations[0] }
-    )->stringify;
-
     return $self->read_from_tarball(
-        $path_to_file, %args
+        file( $repo_path, $self->default_location )->stringify, %args
     );
 }
 
@@ -83,9 +78,12 @@ sub read_from_repo_uri
     $args{repo_uri} = $repo_uri;
 
     my $uri = URI->new( $repo_uri );
-    my @default_locations = $self->default_locations;
 
-    $uri->path_segments( $uri->path_segments, @{ $default_locations[0] } );
+    $uri->path_segments(
+        $uri->path_segments,
+        file($self->default_location)->dir->dir_list,
+        file($self->default_location)->basename,
+    );
 
     my $uri_as_string = $uri->as_string;
 
@@ -107,6 +105,11 @@ This role provides a collection of utility constructors for CPAN index file
 objects.
 
 =head1 REQUIRES
+
+=head2 default_location
+
+Class method that returns a string specifying the path to the default location
+of this file relative to the repository root.
 
 =head2 parse
 

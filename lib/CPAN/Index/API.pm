@@ -1,6 +1,6 @@
 package CPAN::Index::API;
 
-# ABSTRACT: OO interface to the CPAN index files
+# ABSTRACT: Read and write CPAN index files
 
 use strict;
 use warnings;
@@ -8,15 +8,15 @@ use warnings;
 use Path::Class qw(dir);
 use Carp        qw(croak);
 use Class::Load qw(load_class);
+use namespace::autoclean;
 use Moose;
 use Moose::Util::TypeConstraints qw(find_type_constraint);
-use namespace::clean -except => 'meta';
 
 has files => (
-    is      => 'ro',
-    isa     => 'HashRef[Object]',
+    is      => 'bare',
+    isa     => 'HashRef[CPAN::Index::API::File]',
     traits  => ['Hash'],
-    handles => { all_files => 'values', file => 'get' },
+    handles => { files => 'values', file => 'get', file_names => 'keys' },
 );
 
 has repo_path =>
@@ -119,9 +119,22 @@ sub new_from_repo_uri
 sub write_all_files
 {
     my $self = shift;
+    $_->write_to_default_location for $self->files;
+}
 
-    dir($self->repo_path, $_)->mkpath for qw(authors modules);
-    $_->write_to_tarball for $self->all_files;
+sub clone {
+    my ($self, %args) = @_;
+
+    my %new_files;
+    foreach my $file_name ( $self->file_names )
+    {
+        my $new_file = $self->file($file_name)->clone(%args);
+        $new_files{$file_name} = $new_file;
+    }
+
+    return (blessed $self)->meta->clone_object(
+        $self, files => \%new_files, %args
+    );
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -166,7 +179,7 @@ Optional. Path to the root of the repository to which the index files belong.
 
 =item repo_uri
 
-Optional. Base uri of the repository to which the index files belong. 
+Optional. Base uri of the repository to which the index files belong.
 
 =back
 
@@ -181,7 +194,7 @@ repository. Accepts the following parameters:
 
 Required. Arrayref of names of index files to be read. Each name must be the
 name of a plugin under the C<CPAN::Index::API::File::> namespace, e.g.
-C<PackagesDetails>, C<ModList>, etc. 
+C<PackagesDetails>, C<ModList>, etc.
 
 =item repo_path
 
@@ -200,7 +213,7 @@ repository. Accepts the following parameters:
 
 Required. Arrayref of names of index files to be read. Each name must be the
 name of a plugin under the C<CPAN::Index::API::File::> namespace, e.g.
-C<PackagesDetails>, C<ModList>, etc. 
+C<PackagesDetails>, C<ModList>, etc.
 
 =item repo_uri
 
@@ -225,6 +238,11 @@ Returns the base uri of the repository.
 
 =head2 write_all_files
 
-Writes all index files under their default locations under C<repo_path>.
+Writes all index files to their default locations under C<repo_path>.
+
+=head2 clone
+
+Creates a new instance of this object, overloading any of the existing
+attributes with any arguments passed.
 
 =cut

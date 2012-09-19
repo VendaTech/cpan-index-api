@@ -5,33 +5,26 @@ package CPAN::Index::API::File::MailRc;
 use strict;
 use warnings;
 use Scalar::Util qw(blessed);
+use namespace::autoclean;
 use Moose;
-with 'CPAN::Index::API::Role::Writer';
-with 'CPAN::Index::API::Role::Reader';
-use namespace::clean -except => 'meta';
 
-has '+filename' => (
-    default => '01mailrc.txt',
-);
-
-has '+subdir' => (
-    default => 'authors',
-);
+extends qw(CPAN::Index::API::File);
+with qw(CPAN::Index::API::Role::Writer CPAN::Index::API::Role::Reader);
 
 has authors => (
-    is      => 'rw',
+    is      => 'bare',
     isa     => 'ArrayRef',
     default => sub { [] },
     traits  => ['Array'],
     handles => {
         author_count => 'count',
-        author_list  => 'elements',
+        authors      => 'elements',
     },
 );
 
 sub sorted_authors {
     my $self = shift;
-    return sort { $a->{pauseid} cmp $b->{pauseid} } $self->author_list;
+    return sort { $a->{authorid} cmp $b->{authorid} } $self->authors;
 }
 
 sub parse {
@@ -43,14 +36,14 @@ sub parse {
     {
 
         foreach my $line ( split "\n", $content ) {
-            my ( $alias, $pauseid, $long ) = split ' ', $line, 3;
+            my ( $alias, $authorid, $long ) = split ' ', $line, 3;
             $long =~ s/^"//;
             $long =~ s/"$//;
             my ($name, $email) = $long =~ /(.*) <(.+)>$/;
             my $author = {
-                pauseid => $pauseid,
-                name    => $name,
-                email   => $email,
+                authorid => $authorid,
+                name     => $name,
+                email    => $email,
             };
 
             push @authors, $author;
@@ -60,10 +53,7 @@ sub parse {
     return ( authors => \@authors );
 }
 
-sub default_locations
-{
-    return ['authors', '01mailrc.txt.gz'];
-}
+sub default_location { 'authors/01mailrc.txt.gz' }
 
 __PACKAGE__->meta->make_immutable;
 
@@ -87,7 +77,26 @@ This is a class to read and write 01mailrc.txt
 
 =head2 authors
 
-List of authors.
+List of hashres containing author data. The structure of the hashrefs is
+as follows:
+
+=over
+
+=item authorid
+
+CPAN id of the author. This should be a string containing only capital latin
+letters and is at least 2 characters long.
+
+=item name
+
+Author's full name.
+
+=item email
+
+Author's email. The string C<CENSORED> may appear where the email address is
+not available or onot to be displayed publicly.
+
+=back
 
 =head2 sorted_authors
 
@@ -96,6 +105,10 @@ List of authors sorted by pause id.
 =head2 parse
 
 Parses the file and reurns its representation as a data structure.
+
+=head2 default_location
+
+Default file location - C<authors/01mailrc.txt.gz>.
 
 =head1 METHODS FROM ROLES
 
@@ -111,9 +124,7 @@ Parses the file and reurns its representation as a data structure.
 
 =item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
 
-=item L<CPAN::Index::API::Role::Writer/filename>
-
-=item L<CPAN::Index::API::Role::Writer/tarball_suffix>
+=item L<CPAN::Index::API::Role::Writer/tarball_is_default>
 
 =item L<CPAN::Index::API::Role::Writer/repo_path>
 
@@ -121,7 +132,7 @@ Parses the file and reurns its representation as a data structure.
 
 =item L<CPAN::Index::API::File::Role::Writer/content>
 
-=item L<CPAN::Index::API::File::Role::Writer/ write_to_file>
+=item L<CPAN::Index::API::File::Role::Writer/write_to_file>
 
 =item L<CPAN::Index::API::File::Role::Writer/write_to_tarball>
 
@@ -133,7 +144,7 @@ __DATA__
 [%
     foreach my $author ($self->sorted_authors) {
         $OUT .= sprintf qq[alias %s "%s <%s>"\n],
-            $author->{pauseid},
+            $author->{authorid},
             $author->{name},
             $author->{email} ? $author->{email} : 'CENSORED';
     }

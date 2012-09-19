@@ -8,10 +8,10 @@ use CPAN::Index::API::File::ModList;
 
 # defaults
 my $with_modules = <<'EndOfModules';
-File:        03modlist.data
+File:        03modlist.data.gz
 Description: Package names found in directory $CPAN/authors/id/
 Modcount:    3
-Written-By:  CPAN::Index::API::File::ModList 0.002
+Written-By:  CPAN::Index::API::File::ModList 0.003
 Date:        Fri Mar 23 18:23:15 2012 GMT
 
 package CPAN::Modulelist;
@@ -78,10 +78,10 @@ $CPAN::Modulelist::data = [
 EndOfModules
 
 my $without_modules = <<'EndOfModules';
-File:        03modlist.data
+File:        03modlist.data.gz
 Description: Package names found in directory $CPAN/authors/id/
 Modcount:    0
-Written-By:  CPAN::Index::API::File::ModList 0.002
+Written-By:  CPAN::Index::API::File::ModList 0.003
 Date:        Fri Mar 23 18:23:15 2012 GMT
 
 package CPAN::Modulelist;
@@ -114,10 +114,10 @@ $CPAN::Modulelist::data = [];
 EndOfModules
 
 my @modules = (
-    { 
-        name              => 'Foo', 
-        author            => 'FOOBAR', 
-        description       => 'Foo for you', 
+    {
+        name              => 'Foo',
+        authorid          => 'FOOBAR',
+        description       => 'Foo for you',
         chapterid         => '4',
         development_stage => 'S',
         support_level     => 'd',
@@ -125,10 +125,10 @@ my @modules = (
         interface_style   => 'f',
         public_license    => '?',
     },
-    { 
-        name              => 'Baz', 
-        author            => 'LOCAL', 
-        description       => 'Some baz', 
+    {
+        name              => 'Baz',
+        authorid          => 'LOCAL',
+        description       => 'Some baz',
         chapterid         => '4',
         development_stage => 'c',
         support_level     => 'd',
@@ -136,10 +136,10 @@ my @modules = (
         interface_style   => 'f',
         public_license    => '?',
     },
-    { 
-        name              => 'Acme::Qux', 
-        author            => 'PSHANGOV', 
-        description       => 'Qux your code', 
+    {
+        name              => 'Acme::Qux',
+        authorid          => 'PSHANGOV',
+        description       => 'Qux your code',
         chapterid         => '23',
         development_stage => 'R',
         support_level     => 'd',
@@ -180,18 +180,16 @@ my $reader_with_modules = CPAN::Index::API::File::ModList->read_from_string($wit
 my $reader_without_modules = CPAN::Index::API::File::ModList->read_from_string($without_modules);
 
 my %expected = (
-    filename       => '03modlist.data',
+    filename       => '03modlist.data.gz',
     written_by     => "CPAN::Index::API::File::ModList $version",
-    tarball_suffix => 'gz',
     description    => 'Package names found in directory $CPAN/authors/id/',
-    subdir         => 'modules'
 );
 
 foreach my $attribute ( keys %expected ) {
     is ( $reader_without_modules->$attribute, $expected{$attribute}, "read $attribute (without modules)" );
 }
 
-my @no_modules = $reader_without_modules->module_list;
+my @no_modules = $reader_without_modules->modules;
 
 ok ( !@no_modules, "reader without modules has no modules" );
 
@@ -199,7 +197,7 @@ foreach my $attribute ( keys %expected ) {
     is ( $reader_with_modules->$attribute, $expected{$attribute}, "read $attribute (with modules)" );
 }
 
-my @three_modules = $reader_with_modules->module_list;
+my @three_modules = $reader_with_modules->modules;
 
 is ( scalar @three_modules, 3, "reader with modules has 3 modules" );
 
@@ -208,9 +206,9 @@ is ( scalar @three_modules, 3, "reader with modules has 3 modules" );
 my %expected_attributes = (
     name              => 'Foo',
     chapterid         => 4,
-    author            => 'FOOBAR',
+    authorid          => 'FOOBAR',
     description       => 'Foo for you',
-    public_license    => '?',
+    public_license    => undef,
     development_stage => 'S',
     language_used     => 'c',
     support_level     => 'd',

@@ -13,42 +13,31 @@ use Symbol         qw(qualify_to_ref);
 use Scalar::Util   qw(blessed);
 use Carp           qw(croak);
 use Compress::Zlib qw(gzopen $gzerrno);
+use namespace::autoclean;
 use Moose::Role;
-use namespace::clean -except => 'meta';
 
-has filename => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-);
+requires 'default_location';
 
-has tarball_suffix => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-    default  => 'gz',
-);
-
-has subdir => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
+has tarball_is_default => (
+    is         => 'ro',
+    isa        => 'Bool',
+    lazy_build => 1,
 );
 
 has repo_path => (
-    is  => 'rw',
+    is  => 'ro',
     isa => 'Str',
 );
 
 has template => (
-    is         => 'rw',
+    is         => 'ro',
     isa        => 'Str',
     required   => 1,
     lazy_build => 1,
 );
 
 has content => (
-    is         => 'rw',
+    is         => 'ro',
     isa        => 'Str',
     required   => 1,
     lazy_build => 1,
@@ -71,34 +60,52 @@ sub _build_content {
     return $content;
 }
 
+sub _build_tarball_is_default {
+    my $self = shift;
+    return $self->default_location =~ /\.gz$/ ? 1 : 0;
+}
+
+sub rebuild_content {
+    my $self  = shift;
+    my $meta  = (blessed $self)->meta;
+    $meta->get_attribute('content')->set_value($self, $self->_build_content);
+}
+
 sub write_to_tarball {
-    my ( $self, $filename ) = @_;
-    my $file = $self->_prepare_file($filename, $self->tarball_suffix);
+    my ($self, $filename)  = @_;
+    my $file = $self->_prepare_file($filename, 1);
     my $gz = gzopen($file->stringify, 'wb') or croak "Cannot open $file: $gzerrno";
     $gz->gzwrite($self->content);
     $gz->gzclose and croak "Error closing $file";
 }
 
 sub write_to_file {
-    my ( $self, $filename ) = @_;
+    my ($self, $filename) = @_;
     my $file = $self->_prepare_file($filename);
     write_file($file, { err_mode => 'carp' }, $self->content);
 }
 
+sub write_to_default_location {
+    my ($self) = @_;
+    $self->tarball_is_default
+        ? $self->write_to_tarball
+        : $self->write_to_file;
+}
+
 sub _prepare_file {
-    my ( $self, $file, $suffix ) = @_;
+    my ( $self, $file, $is_tarball ) = @_;
 
     if ( defined $file ) {
         $file = file($file);
     } elsif ( not defined $file and $self->repo_path ) {
-        my $filename = $self->filename;
+        my $location = $self->default_location;
 
-        if ($suffix) {
-             my ($basename) = fileparse($filename);
-             $filename = "$basename.$suffix";
-        }
+        # first normalize the extension
+        $location =~ s/\.gz$//;
+        # then  make sure we have it if we need a tarball
+        $location .= '.gz' if $is_tarball;
 
-        $file = file( $self->repo_path, $self->subdir, $filename);
+        $file = file( $self->repo_path, $location);
     } else {
         croak "Unable to write to file without a filename or repo path";
     }
@@ -119,25 +126,23 @@ index files.
 
 =head1 REQUIRES
 
-This role does not explicitly require any methods, but it expects that
-consuming packages will have a C<DATA> section that contains the template
-to use for generating the file contents.
+=head2 default_location
+
+Class method that returns a string specifying the path to the default location
+of this file relative to the repository root.
+
+=head2 C<__DATA__>
+
+Consuming packages are expected to have a C<DATA> section that contains the
+template to use for generating the file contents.
 
 =head1 PROVIDES
 
-=head2 filename
+=head2 tarball_is_default
 
-Required attribute. Base name of index file, e.g. C<02packages.details.txt>.
-
-=head2 subdir
-
-Required attribute. Directory where the index file is located, relative to
-the repo root.
-
-=head2 tarball_suffix
-
-Optional attribute. Suffix to use for the compressed version of the index file.
-Default is C<gz>.
+Required attribute. Boolean - indicates whether the file should be compressed
+by default. Automatically set to true if the file path in C<default_location>
+ends in C<.gz>.
 
 =head2 repo_path
 
@@ -153,15 +158,27 @@ defalt is fetched from the C<DATA> section of the consuming package.
 Optional attribute. The index file content. Built by default from the
 provided L</template>.
 
+=head2 rebuild_content
+
+C<content> is a lazy read-only attribute which normally is built only once.
+Use C<rebuild_content> to generate a new value for C<content> if you've made
+changes to the list of packages.
+
 =head2 write_to_file
 
-This method builds the file content if necessary and writes it to a file. The
-full file path is calculated from L</subdir> and L</filename>.
+This method builds the file content if necessary and writes it to a file. A
+path to a file to write to can be passed as an argument, otherwise the default
+location will be used (a C<.gz> suffix, if it exists, will be removed).
 
 =head2 write_to_tarball
 
-This method builds the file content if necessary and writes it to a tarball.
-The full tarball file path is calculated from L</subdir>, L</filename> and
-L<tarball_suffix>.
+This method builds the file content if necessary and writes it to a tarball. A
+path to a file to write to can be passed as an argument, otherwise the default
+location will be used.
+
+=head2 write_to_default_location
+
+This method builds the file content if necessary and writes it to the default
+location.
 
 =cut
