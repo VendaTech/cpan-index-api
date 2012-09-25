@@ -52,8 +52,9 @@ has authors => (
     default => sub { [] },
     traits  => ['Array'],
     handles => {
-        authors    => 'elements',
-        add_author => 'push',
+        authors      => 'elements',
+        add_author   => 'push',
+        author_count => 'count',
     },
 );
 
@@ -94,7 +95,7 @@ sub _build_content {
     my $self = shift;
 
     my $twig = XML::Twig->new( pretty_print => 'indented' );
-    $twig->parse(q[<?xml version="1.0" encoding="UTF-8"?><cpan-whois xmlns='http://www.cpan.org/xmlns/whois' />]);
+    $twig->parse(q[<?xml version="1.0" encoding="UTF-8"?><cpan-whois xmlns='http://www.cpan.org/xmlns/whois'/>]);
     $twig->root->set_att(
         'last-generated' => $self->last_generated,
         'generated-by'   => $self->generated_by,
@@ -122,3 +123,116 @@ sub _build_content {
 sub default_location { 'authors/00whois.xml' }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 SYNOPSIS
+
+  my $mailrc = CPAN::Index::File::Whois->parse_from_repo_uri(
+    'http://cpan.perl.org'
+  );
+
+  foreach my $author ($mailrc->authors) {
+    ... # do something
+  }
+
+=head1 DESCRIPTION
+
+This is a class to read and write 01mailrc.txt
+
+=head1 METHODS
+
+=head2 authors
+
+List of hashres containing author data. The structure of the hashrefs is
+as follows:
+
+=over
+
+=item cpanid
+
+CPAN id of the author, required.
+
+=item full_name
+
+Author's full name. Can be an empty string.
+
+=item ascii_name
+
+Author's full name, but conatining only ASCII characters.
+
+=item email
+
+Author's email.
+
+=item has_cpandir
+
+Boolean - true if the author has a cpan directory.
+
+=item homepate
+
+Author's homepage.
+
+=item ino
+
+Additional information about the author.
+
+=item type
+
+Author type, usually C<author>.
+
+=back
+
+=head2 authors_count
+
+Number of authors in this file.
+
+=head2 author
+
+Method that fetches the entry for a given cpanid.
+
+=head2 last_generated
+
+Date and time when the file was last generated.
+
+=head2 generated_by
+
+Name of software that generated the file.
+
+=head2 parse
+
+Parses the file and reurns its representation as a data structure.
+
+=head2 default_location
+
+Default file location - C<authors/00whois.xml>.
+
+=head1 METHODS FROM ROLES
+
+=over
+
+=item <CPAN::Index::API::Role::Reader/read_from_string>
+
+=item <CPAN::Index::API::Role::Reader/read_from_file>
+
+=item <CPAN::Index::API::Role::Reader/read_from_tarball>
+
+=item <CPAN::Index::API::Role::Reader/read_from_repo_path>
+
+=item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
+
+=item L<CPAN::Index::API::Role::Writer/tarball_is_default>
+
+=item L<CPAN::Index::API::Role::Writer/repo_path>
+
+=item L<CPAN::Index::API::Role::Writer/template>
+
+=item L<CPAN::Index::API::File::Role::Writer/content>
+
+=item L<CPAN::Index::API::File::Role::Writer/write_to_file>
+
+=item L<CPAN::Index::API::File::Role::Writer/write_to_tarball>
+
+=back
+
+=cut
