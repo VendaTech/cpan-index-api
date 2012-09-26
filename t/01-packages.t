@@ -43,16 +43,16 @@ my @packages = (
 );
 
 my $writer_with_packages = CPAN::Index::API::File::PackagesDetails->new(
-    repo_uri     => 'http://www.example.com',
-    last_updated => 'Fri Mar 23 18:23:15 2012 GMT',
-    written_by   => 'CPAN::Index::API::File::PackagesDetails 0.001',
-    packages     => \@packages,
+    repo_uri       => 'http://www.example.com',
+    last_generated => 'Fri Mar 23 18:23:15 2012 GMT',
+    generated_by   => 'CPAN::Index::API::File::PackagesDetails 0.001',
+    packages       => \@packages,
 );
 
 my $writer_without_packages = CPAN::Index::API::File::PackagesDetails->new(
-    repo_uri     => 'http://www.example.com',
-    last_updated => 'Fri Mar 23 18:23:15 2012 GMT',
-    written_by   => 'CPAN::Index::API::File::PackagesDetails 0.001',
+    repo_uri       => 'http://www.example.com',
+    last_generated => 'Fri Mar 23 18:23:15 2012 GMT',
+    generated_by   => 'CPAN::Index::API::File::PackagesDetails 0.001',
 );
 
 eq_or_diff( $writer_with_packages->content, $with_packages, 'with packages' );
@@ -72,12 +72,12 @@ my $reader_with_packages = CPAN::Index::API::File::PackagesDetails->read_from_st
 my $reader_without_packages = CPAN::Index::API::File::PackagesDetails->read_from_string($without_packages);
 
 my %expected = (
-    last_updated   => 'Fri Mar 23 18:23:15 2012 GMT',
+    last_generated => 'Fri Mar 23 18:23:15 2012 GMT',
     intended_for   => 'Automated fetch routines, namespace documentation.',
     description    => 'Package names found in directory $CPAN/authors/id/',
     uri            => 'http://www.example.com/modules/02packages.details.txt.gz',
     filename       => '02packages.details.txt.gz',
-    written_by     => 'CPAN::Index::API::File::PackagesDetails 0.001',
+    generated_by   => 'CPAN::Index::API::File::PackagesDetails 0.001',
     columns        => 'package name, version, path',
 );
 
@@ -114,10 +114,10 @@ $gz->gzclose;
 is ( $content_from_tarball, $with_packages, 'read_from_tarball');
 
 my $mutable_writer = CPAN::Index::API::File::PackagesDetails->new(
-    repo_uri     => 'http://www.example.com',
-    last_updated => 'Fri Mar 23 18:23:15 2012 GMT',
-    written_by   => 'CPAN::Index::API::File::PackagesDetails 0.001',
-    packages     => [@packages[0..2]],
+    repo_uri       => 'http://www.example.com',
+    last_generated => 'Fri Mar 23 18:23:15 2012 GMT',
+    generated_by   => 'CPAN::Index::API::File::PackagesDetails 0.001',
+    packages       => [@packages[0..2]],
 );
 
 unlike $mutable_writer->content, qr/PSHANGOV/, 'content before addition';

@@ -1,6 +1,6 @@
-package CPAN::Index::API::Role::Writer;
+package CPAN::Index::API::Role::Writable;
 
-# ABSTRACT: Role for writing index files
+# ABSTRACT: Writes index files
 
 use strict;
 use warnings;

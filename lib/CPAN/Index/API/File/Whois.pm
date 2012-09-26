@@ -10,8 +10,12 @@ use namespace::autoclean;
 use Moose;
 use MooseX::ClassAttribute;
 
-extends qw(CPAN::Index::API::File);
-with qw(CPAN::Index::API::Role::Reader CPAN::Index::API::Role::Writer);
+with qw(
+    CPAN::Index::API::Role::Writable
+    CPAN::Index::API::Role::Readable
+    CPAN::Index::API::Role::Clonable
+    CPAN::Index::API::Role::HavingGeneratedBy
+);
 
 class_has _field_map => (
     is      => 'bare',
@@ -31,19 +35,6 @@ class_has _field_map => (
         info        => 'info',
         type        => 'type',
     } },
-);
-
-has last_generated => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => sub { scalar gmtime() . " GMT" },
-);
-
-has generated_by => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => 'Id',
 );
 
 has authors => (
@@ -191,14 +182,6 @@ Number of authors in this file.
 
 Method that fetches the entry for a given cpanid.
 
-=head2 last_generated
-
-Date and time when the file was last generated.
-
-=head2 generated_by
-
-Name of software that generated the file.
-
 =head2 parse
 
 Parses the file and reurns its representation as a data structure.
@@ -211,27 +194,33 @@ Default file location - C<authors/00whois.xml>.
 
 =over
 
-=item <CPAN::Index::API::Role::Reader/read_from_string>
+=item <CPAN::Index::API::Role::Readable/read_from_string>
 
-=item <CPAN::Index::API::Role::Reader/read_from_file>
+=item <CPAN::Index::API::Role::Readable/read_from_file>
 
-=item <CPAN::Index::API::Role::Reader/read_from_tarball>
+=item <CPAN::Index::API::Role::Readable/read_from_tarball>
 
-=item <CPAN::Index::API::Role::Reader/read_from_repo_path>
+=item <CPAN::Index::API::Role::Readable/read_from_repo_path>
 
-=item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
+=item <CPAN::Index::API::Role::Readable/read_from_repo_uri>
 
-=item L<CPAN::Index::API::Role::Writer/tarball_is_default>
+=item L<CPAN::Index::API::Role::Writable/tarball_is_default>
 
-=item L<CPAN::Index::API::Role::Writer/repo_path>
+=item L<CPAN::Index::API::Role::Writable/repo_path>
 
-=item L<CPAN::Index::API::Role::Writer/template>
+=item L<CPAN::Index::API::Role::Writable/template>
 
-=item L<CPAN::Index::API::File::Role::Writer/content>
+=item L<CPAN::Index::API::Role::Writable/content>
 
-=item L<CPAN::Index::API::File::Role::Writer/write_to_file>
+=item L<CPAN::Index::API::Role::Writable/write_to_file>
 
-=item L<CPAN::Index::API::File::Role::Writer/write_to_tarball>
+=item L<CPAN::Index::API::Role::Writable/write_to_tarball>
+
+=item L<CPAN::Index::API::Role::Clonable/clone>
+
+=item L<CPAN::Index::API::Role::HavingGeneratedBy/generated_by>
+
+=item L<CPAN::Index::API::Role::HavingGeneratedBy/last_generated>
 
 =back
 

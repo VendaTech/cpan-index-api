@@ -1,5 +1,10 @@
 Revision history for CPAN-Index-API
 
+0.005   28 September 2012
+
+        * Make base class for files a role instead
+        * Add roles for more common functionality
+
 0.004   26 September 2012
 
         * Support for 00whois.xml

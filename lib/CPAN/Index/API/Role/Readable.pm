@@ -1,6 +1,6 @@
-package CPAN::Index::API::Role::Reader;
+package CPAN::Index::API::Role::Readable;
 
-# ABSTRACT: Role for reading index files
+# ABSTRACT: Reads index files
 
 use strict;
 use warnings;

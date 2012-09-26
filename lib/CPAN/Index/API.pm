@@ -14,7 +14,7 @@ use Moose::Util::TypeConstraints qw(find_type_constraint);
 
 has files => (
     is      => 'bare',
-    isa     => 'HashRef[CPAN::Index::API::File]',
+    isa     => 'HashRef',
     traits  => ['Hash'],
     handles => { files => 'values', file => 'get', file_names => 'keys' },
 );

@@ -152,14 +152,14 @@ my @modules = (
 my $version = $CPAN::Index::API::File::ModList::VERSION;
 
 my $writer_with_modules = CPAN::Index::API::File::ModList->new(
-    date       => 'Fri Mar 23 18:23:15 2012 GMT',
-    written_by => "CPAN::Index::API::File::ModList $version",
-    modules    => \@modules,
+    last_generated => 'Fri Mar 23 18:23:15 2012 GMT',
+    generated_by   => "CPAN::Index::API::File::ModList $version",
+    modules        => \@modules,
 );
 
 my $writer_without_modules = CPAN::Index::API::File::ModList->new(
-    date       => 'Fri Mar 23 18:23:15 2012 GMT',
-    written_by => "CPAN::Index::API::File::ModList $version",
+    last_generated => 'Fri Mar 23 18:23:15 2012 GMT',
+    generated_by   => "CPAN::Index::API::File::ModList $version",
 );
 
 eq_or_diff( $writer_with_modules->content, $with_modules, 'with modules' );
@@ -180,9 +180,9 @@ my $reader_with_modules = CPAN::Index::API::File::ModList->read_from_string($wit
 my $reader_without_modules = CPAN::Index::API::File::ModList->read_from_string($without_modules);
 
 my %expected = (
-    filename       => '03modlist.data.gz',
-    written_by     => "CPAN::Index::API::File::ModList $version",
-    description    => 'Package names found in directory $CPAN/authors/id/',
+    filename     => '03modlist.data.gz',
+    generated_by => "CPAN::Index::API::File::ModList $version",
+    description  => 'Package names found in directory $CPAN/authors/id/',
 );
 
 foreach my $attribute ( keys %expected ) {

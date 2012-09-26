@@ -1,6 +1,6 @@
 package CPAN::Index::API::File::PackagesDetails;
 
-# ABSTRACT: Write 02packages.details
+# ABSTRACT: Interface to 02packages.details.txt
 
 use strict;
 use warnings;
@@ -13,14 +13,12 @@ use List::Util  qw(first);
 use namespace::autoclean;
 use Moose;
 
-extends qw(CPAN::Index::API::File);
-with qw(CPAN::Index::API::Role::Writer CPAN::Index::API::Role::Reader);
-
-has filename => (
-    is         => 'ro',
-    isa        => 'Str',
-    required   => 1,
-    lazy_build => 1,
+with qw(
+    CPAN::Index::API::Role::Writable
+    CPAN::Index::API::Role::Readable
+    CPAN::Index::API::Role::Clonable
+    CPAN::Index::API::Role::HavingFilename
+    CPAN::Index::API::Role::HavingGeneratedBy
 );
 
 has uri => (
@@ -56,21 +54,6 @@ has intended_for => (
     default  => 'Automated fetch routines, namespace documentation.',
 );
 
-has written_by => (
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
-    default  => "CPAN::Index::API::File::PackagesDetails $CPAN::Index::API::File::PackagesDetails::VERSION",
-);
-
-has last_updated => (
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
-    lazy     => 1,
-    default  => sub { scalar gmtime() . " GMT" },
-);
-
 has packages => (
     is      => 'bare',
     isa     => 'ArrayRef[HashRef]',
@@ -102,11 +85,6 @@ sub BUILDARGS {
     {
         croak "Either 'uri', 'repo_uri' or 'repo_path' is required";
     }
-}
-
-sub _build_filename {
-    my $self = shift;
-    return file($self->default_location)->basename;
 }
 
 sub _build_uri {
@@ -141,9 +119,9 @@ sub parse {
         'Description'  => 'description',
         'Columns'      => 'columns',
         'Intended-For' => 'intended_for',
-        'Written-By'   => 'written_by',
+        'Written-By'   => 'generated_by',
         'Line-Count'   => 'line_count',
-        'Last-Updated' => 'last_updated',
+        'Last-Updated' => 'last_generated',
     );
 
     my @lines = split "\n", $content;
@@ -225,17 +203,9 @@ Name of this file - defaults to C<02packages.details.txt.gz>;
 
 Short description of the file.
 
-=head2 written_by
-
-Name and version of software that wrote the file.
-
 =head2 intended_for
 
 Target consumers of the file.
-
-=head2 last_updated
-
-Date and time when the file was last updated.
 
 =head2 uri
 
@@ -253,39 +223,49 @@ Default file location - C<modules/02packages.details.txt.gz>.
 
 =over
 
-=item <CPAN::Index::API::Role::Reader/read_from_string>
+=item <CPAN::Index::API::Role::Readable/read_from_string>
 
-=item <CPAN::Index::API::Role::Reader/read_from_file>
+=item <CPAN::Index::API::Role::Readable/read_from_file>
 
-=item <CPAN::Index::API::Role::Reader/read_from_tarball>
+=item <CPAN::Index::API::Role::Readable/read_from_tarball>
 
-=item <CPAN::Index::API::Role::Reader/read_from_repo_path>
+=item <CPAN::Index::API::Role::Readable/read_from_repo_path>
 
-=item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
+=item <CPAN::Index::API::Role::Readable/read_from_repo_uri>
 
-=item L<CPAN::Index::API::Role::Writer/repo_path>
+=item L<CPAN::Index::API::Role::Writable/tarball_is_default>
 
-=item L<CPAN::Index::API::Role::Writer/template>
+=item L<CPAN::Index::API::Role::Writable/repo_path>
 
-=item L<CPAN::Index::API::File::Role::Writer/content>
+=item L<CPAN::Index::API::Role::Writable/template>
 
-=item L<CPAN::Index::API::File::Role::Writer/ write_to_file>
+=item L<CPAN::Index::API::Role::Writable/content>
 
-=item L<CPAN::Index::API::File::Role::Writer/write_to_tarball>
+=item L<CPAN::Index::API::Role::Writable/write_to_file>
+
+=item L<CPAN::Index::API::Role::Writable/write_to_tarball>
+
+=item L<CPAN::Index::API::Role::Clonable/clone>
+
+=item L<CPAN::Index::API::Role::HavingFilename/filename>
+
+=item L<CPAN::Index::API::Role::HavingGeneratedBy/generated_by>
+
+=item L<CPAN::Index::API::Role::HavingGeneratedBy/last_generated>
 
 =back
 
 =cut
 
 __DATA__
-File:         [% $self->filename      %]
-URL:          [% $self->uri           %]
-Description:  [% $self->description   %]
-Columns:      [% $self->columns       %]
-Intended-For: [% $self->intended_for  %]
-Written-By:   [% $self->written_by    %]
-Line-Count:   [% $self->package_count %]
-Last-Updated: [% $self->last_updated  %]
+File:         [% $self->filename       %]
+URL:          [% $self->uri            %]
+Description:  [% $self->description    %]
+Columns:      [% $self->columns        %]
+Intended-For: [% $self->intended_for   %]
+Written-By:   [% $self->generated_by   %]
+Line-Count:   [% $self->package_count  %]
+Last-Updated: [% $self->last_generated %]
 [%
     if ($self->package_count)
     {

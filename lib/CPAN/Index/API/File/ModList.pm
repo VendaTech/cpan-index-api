@@ -1,6 +1,6 @@
 package CPAN::Index::API::File::ModList;
 
-# ABSTRACT: Read and write 03modlist.data
+# ABSTRACT: Interface to 03modlist.data
 
 use strict;
 use warnings;
@@ -10,14 +10,12 @@ use Path::Class qw(file);
 use namespace::autoclean;
 use Moose;
 
-extends qw(CPAN::Index::API::File);
-with qw(CPAN::Index::API::Role::Writer CPAN::Index::API::Role::Reader);
-
-has filename => (
-    is         => 'ro',
-    isa        => 'Str',
-    required   => 1,
-    lazy_build => 1,
+with qw(
+    CPAN::Index::API::Role::Writable
+    CPAN::Index::API::Role::Readable
+    CPAN::Index::API::Role::Clonable
+    CPAN::Index::API::Role::HavingFilename
+    CPAN::Index::API::Role::HavingGeneratedBy
 );
 
 has description => (
@@ -25,21 +23,6 @@ has description => (
     isa      => 'Str',
     required => 1,
     default  => 'Package names found in directory $CPAN/authors/id/',
-);
-
-has written_by => (
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
-    default  => "CPAN::Index::API::File::ModList $CPAN::Index::API::File::ModList::VERSION",
-);
-
-has date => (
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
-    lazy     => 1,
-    default  => sub { scalar gmtime() . " GMT" },
 );
 
 has modules => (
@@ -52,11 +35,6 @@ has modules => (
         modules      => 'elements',
     },
 );
-
-sub _build_filename {
-    my $self = shift;
-    return file($self->default_location)->basename;
-}
 
 # lots of code from Parse::CPAN::Modlist here
 sub parse {
@@ -355,14 +333,6 @@ Name of this file - defaults to C<'03modlist.data.gz>;
 
 Short description of the file.
 
-=head2 written_by
-
-Name and version of software that wrote the file.
-
-=head2 date
-
-Date and time when the file was written.
-
 =head2 parse
 
 Parses the file and reurns its representation as a data structure.
@@ -375,25 +345,35 @@ Default file location - C<modules/03modlist.data.gz>.
 
 =over
 
-=item <CPAN::Index::API::Role::Reader/read_from_string>
+=item <CPAN::Index::API::Role::Readable/read_from_string>
 
-=item <CPAN::Index::API::Role::Reader/read_from_file>
+=item <CPAN::Index::API::Role::Readable/read_from_file>
 
-=item <CPAN::Index::API::Role::Reader/read_from_tarball>
+=item <CPAN::Index::API::Role::Readable/read_from_tarball>
 
-=item <CPAN::Index::API::Role::Reader/read_from_repo_path>
+=item <CPAN::Index::API::Role::Readable/read_from_repo_path>
 
-=item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
+=item <CPAN::Index::API::Role::Readable/read_from_repo_uri>
 
-=item L<CPAN::Index::API::Role::Writer/repo_path>
+=item L<CPAN::Index::API::Role::Writable/tarball_is_default>
 
-=item L<CPAN::Index::API::Role::Writer/template>
+=item L<CPAN::Index::API::Role::Writable/repo_path>
 
-=item L<CPAN::Index::API::File::Role::Writer/content>
+=item L<CPAN::Index::API::Role::Writable/template>
 
-=item L<CPAN::Index::API::File::Role::Writer/write_to_file>
+=item L<CPAN::Index::API::Role::Writable/content>
 
-=item L<CPAN::Index::API::File::Role::Writer/write_to_tarball>
+=item L<CPAN::Index::API::Role::Writable/write_to_file>
+
+=item L<CPAN::Index::API::Role::Writable/write_to_tarball>
+
+=item L<CPAN::Index::API::Role::Clonable/clone>
+
+=item L<CPAN::Index::API::Role::HavingFilename/filename>
+
+=item L<CPAN::Index::API::Role::HavingGeneratedBy/generated_by>
+
+=item L<CPAN::Index::API::Role::HavingGeneratedBy/last_generated>
 
 =back
 
@@ -403,8 +383,8 @@ __DATA__
 File:        [% $self->filename %]
 Description: [% $self->description %]
 Modcount:    [% $self->module_count %]
-Written-By:  [% $self->written_by %]
-Date:        [% $self->date %]
+Written-By:  [% $self->generated_by %]
+Date:        [% $self->last_generated %]
 
 package CPAN::Modulelist;
 # Usage: print Data::Dumper->new([CPAN::Modulelist->data])->Dump or similar

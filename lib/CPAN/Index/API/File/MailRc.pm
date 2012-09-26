@@ -1,6 +1,6 @@
 package CPAN::Index::API::File::MailRc;
 
-# ABSTRACT: Read and write 01mailrc.txt
+# ABSTRACT: Interface to 01mailrc.txt
 
 use strict;
 use warnings;
@@ -8,8 +8,11 @@ use Scalar::Util qw(blessed);
 use namespace::autoclean;
 use Moose;
 
-extends qw(CPAN::Index::API::File);
-with qw(CPAN::Index::API::Role::Writer CPAN::Index::API::Role::Reader);
+with qw(
+    CPAN::Index::API::Role::Writable
+    CPAN::Index::API::Role::Readable
+    CPAN::Index::API::Role::Clonable
+);
 
 has authors => (
     is      => 'bare',
@@ -114,27 +117,29 @@ Default file location - C<authors/01mailrc.txt.gz>.
 
 =over
 
-=item <CPAN::Index::API::Role::Reader/read_from_string>
+=item <CPAN::Index::API::Role::Readable/read_from_string>
 
-=item <CPAN::Index::API::Role::Reader/read_from_file>
+=item <CPAN::Index::API::Role::Readable/read_from_file>
 
-=item <CPAN::Index::API::Role::Reader/read_from_tarball>
+=item <CPAN::Index::API::Role::Readable/read_from_tarball>
 
-=item <CPAN::Index::API::Role::Reader/read_from_repo_path>
+=item <CPAN::Index::API::Role::Readable/read_from_repo_path>
 
-=item <CPAN::Index::API::Role::Reader/read_from_repo_uri>
+=item <CPAN::Index::API::Role::Readable/read_from_repo_uri>
 
-=item L<CPAN::Index::API::Role::Writer/tarball_is_default>
+=item L<CPAN::Index::API::Role::Writable/tarball_is_default>
 
-=item L<CPAN::Index::API::Role::Writer/repo_path>
+=item L<CPAN::Index::API::Role::Writable/repo_path>
 
-=item L<CPAN::Index::API::Role::Writer/template>
+=item L<CPAN::Index::API::Role::Writable/template>
 
-=item L<CPAN::Index::API::File::Role::Writer/content>
+=item L<CPAN::Index::API::Role::Writable/content>
 
-=item L<CPAN::Index::API::File::Role::Writer/write_to_file>
+=item L<CPAN::Index::API::Role::Writable/write_to_file>
 
-=item L<CPAN::Index::API::File::Role::Writer/write_to_tarball>
+=item L<CPAN::Index::API::Role::Writable/write_to_tarball>
+
+=item L<CPAN::Index::API::Role::Clonable/clone>
 
 =back
 
