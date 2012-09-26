@@ -17,7 +17,7 @@ class_has _field_map => (
     is      => 'bare',
     isa     => 'HashRef',
     traits  => ['Hash'],
-    handles => { 
+    handles => {
         _original_fields     => 'keys',
         _name_for_orig_field => 'get',
     },
@@ -103,7 +103,7 @@ sub _build_content {
 
     foreach my $author ($self->authors) {
         my $elt_cpanid = XML::Twig::Elt->new('cpanid');
-        
+
         foreach my $name ( $self->_original_fields ) {
             if ( exists $author->{ $self->_name_for_orig_field($name) } ) {
                 my $elt_attribute = XML::Twig::Elt->new($name);

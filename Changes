@@ -1,5 +1,9 @@
 Revision history for CPAN-Index-API
 
+0.004   26 September 2012
+
+        * Support for 00whois.xml
+
 0.003   18 September 2012
 
         * Better performance by using hashes instead of objects for records
