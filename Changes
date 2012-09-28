@@ -1,5 +1,9 @@
 Revision history for CPAN-Index-API
 
+0.006   28 September 2012
+
+        * Remove obsolete CPAN::Index::API::File
+
 0.005   28 September 2012
 
         * Make base class for files a role instead
