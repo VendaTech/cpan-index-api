@@ -103,6 +103,10 @@ is ( $foo->{name},         'Foo',                         'read package name'   
 is ( $foo->{version},      '0.01',                        'read package version'      );
 is ( $foo->{distribution}, 'F/FO/FOOBAR/Foo-0.01.tar.gz', 'read package distribution' );
 
+(my $undef_version) = grep { ! defined $_->{version} } @four_packages;
+
+is ( $undef_version->{version}, undef, 'read missing version' );
+
 my ($tarball_fh_with_packages, $tarball_name_with_packages) = tempfile;
 $writer_with_packages->write_to_tarball($tarball_name_with_packages);
 

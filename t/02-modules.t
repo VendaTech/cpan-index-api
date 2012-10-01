@@ -11,7 +11,7 @@ my $with_modules = <<'EndOfModules';
 File:        03modlist.data.gz
 Description: Package names found in directory $CPAN/authors/id/
 Modcount:    3
-Written-By:  CPAN::Index::API::File::ModList 0.006
+Written-By:  CPAN::Index::API::File::ModList 0.007
 Date:        Fri Mar 23 18:23:15 2012 GMT
 
 package CPAN::Modulelist;
@@ -81,7 +81,7 @@ my $without_modules = <<'EndOfModules';
 File:        03modlist.data.gz
 Description: Package names found in directory $CPAN/authors/id/
 Modcount:    0
-Written-By:  CPAN::Index::API::File::ModList 0.006
+Written-By:  CPAN::Index::API::File::ModList 0.007
 Date:        Fri Mar 23 18:23:15 2012 GMT
 
 package CPAN::Modulelist;

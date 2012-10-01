@@ -135,6 +135,10 @@ sub parse {
 
     foreach my $line ( @lines ) {
         my ( $name, $version, $distribution ) = split ' ', $line;
+
+        # normalize missing version
+        undef $version if $version eq 'undef';
+
         my $package = {
             name         => $name,
             version      => $version,

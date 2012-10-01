@@ -41,4 +41,11 @@ is ( $foobar->{authorid}, 'FOOBAR',      'read author id' );
 is ( $foobar->{name},     'Foo Bar',     'read author name'    );
 is ( $foobar->{email},    'foo@bar.com', 'read author email'   );
 
+(my $undef_email) = grep { ! defined $_->{email} } @three_authors;
+is ( $undef_email->{email}, undef, 'read undefined email' );
+
+is ( $foobar->{authorid}, 'FOOBAR',      'read author id' );
+is ( $foobar->{name},     'Foo Bar',     'read author name'    );
+is ( $foobar->{email},    'foo@bar.com', 'read author email'   );
+
 done_testing;

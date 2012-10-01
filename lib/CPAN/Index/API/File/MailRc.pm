@@ -43,6 +43,9 @@ sub parse {
             $long =~ s/^"//;
             $long =~ s/"$//;
             my ($name, $email) = $long =~ /(.*) <(.+)>$/;
+
+            undef $email if $email eq 'CENSORED';
+
             my $author = {
                 authorid => $authorid,
                 name     => $name,
@@ -96,8 +99,7 @@ Author's full name.
 
 =item email
 
-Author's email. The string C<CENSORED> may appear where the email address is
-not available or onot to be displayed publicly.
+Author's email.
 
 =back
 

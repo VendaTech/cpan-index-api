@@ -33,12 +33,12 @@ my @authordata = (
     {
         cpanid    => 'AFOXSON',
         type      => 'author',
-        full_name => '',
+        full_name => undef,
     },
     {
         cpanid    => 'YOHAMED',
         type      => 'author',
-        full_name => '',
+        full_name => undef,
         email     => 'moe334578-pause@yahoo.com',
     },
 );

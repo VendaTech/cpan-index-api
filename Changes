@@ -1,5 +1,9 @@
 Revision history for CPAN-Index-API
 
+0.007   1 October 2012
+
+        * Normalize all missign values to undef
+
 0.006   28 September 2012
 
         * Remove obsolete CPAN::Index::API::File
